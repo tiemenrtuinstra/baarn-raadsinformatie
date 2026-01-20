@@ -1,0 +1,531 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Baarn Raadsinformatie API",
+    "description": "REST API voor toegang tot politieke documenten en vergaderingen van gemeente Baarn.\n\nBeschikbare functionaliteit:\n- Vergaderingen ophalen en doorzoeken\n- Documenten lezen en zoeken (keyword en semantisch)\n- Gremia (commissies) ophalen\n- Coalitieakkoord tracking\n- Annotaties beheren",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Baarn Raadsinformatie",
+      "url": "https://github.com/tiemenrtuinstra/baarn-raadsinformatie"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://your-domain.com",
+      "description": "Production API - vervang met je eigen domein"
+    }
+  ],
+  "paths": {
+    "/api/meetings": {
+      "get": {
+        "operationId": "getMeetings",
+        "summary": "Vergaderingen ophalen",
+        "description": "Haal een lijst van gemeenteraads- en commissievergaderingen op met optionele filters op datum en zoekterm.",
+        "tags": ["Vergaderingen"],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum aantal resultaten (1-100)",
+            "schema": { "type": "integer", "default": 20, "minimum": 1, "maximum": 100 }
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "description": "Start datum (YYYY-MM-DD)",
+            "schema": { "type": "string", "format": "date" }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "description": "Eind datum (YYYY-MM-DD)",
+            "schema": { "type": "string", "format": "date" }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Zoekterm in vergadertitels",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lijst van vergaderingen",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": { "type": "integer" },
+                    "meetings": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer" },
+                          "title": { "type": "string" },
+                          "date": { "type": "string" },
+                          "gremium": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/api/meetings/{meeting_id}": {
+      "get": {
+        "operationId": "getMeetingDetails",
+        "summary": "Vergadering details",
+        "description": "Haal gedetailleerde informatie op over een specifieke vergadering inclusief agenda en documenten.",
+        "tags": ["Vergaderingen"],
+        "parameters": [
+          {
+            "name": "meeting_id",
+            "in": "path",
+            "required": true,
+            "description": "ID van de vergadering",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vergadering details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "integer" },
+                    "title": { "type": "string" },
+                    "date": { "type": "string" },
+                    "location": { "type": "string" },
+                    "agenda_items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer" },
+                          "title": { "type": "string" }
+                        }
+                      }
+                    },
+                    "documents": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer" },
+                          "title": { "type": "string" },
+                          "has_content": { "type": "boolean" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Vergadering niet gevonden" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/api/meetings/{meeting_id}/agenda": {
+      "get": {
+        "operationId": "getAgendaItems",
+        "summary": "Agendapunten ophalen",
+        "description": "Haal alle agendapunten op voor een specifieke vergadering.",
+        "tags": ["Vergaderingen"],
+        "parameters": [
+          {
+            "name": "meeting_id",
+            "in": "path",
+            "required": true,
+            "description": "ID van de vergadering",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agendapunten",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "meeting_id": { "type": "integer" },
+                    "count": { "type": "integer" },
+                    "agenda_items": { "type": "array", "items": { "type": "object" } }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/api/documents/{document_id}": {
+      "get": {
+        "operationId": "getDocument",
+        "summary": "Document ophalen",
+        "description": "Haal een specifiek document op met metadata en geëxtraheerde tekst (max 10.000 karakters).",
+        "tags": ["Documenten"],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "description": "ID van het document",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document met inhoud",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "integer" },
+                    "title": { "type": "string" },
+                    "has_text": { "type": "boolean" },
+                    "text_content": { "type": "string" },
+                    "truncated": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Document niet gevonden" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/api/documents/search": {
+      "get": {
+        "operationId": "searchDocuments",
+        "summary": "Documenten zoeken",
+        "description": "Zoek in documenten op titel en inhoud met keyword matching.",
+        "tags": ["Zoeken"],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "description": "Zoekterm",
+            "schema": { "type": "string", "minLength": 2 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum resultaten (1-100)",
+            "schema": { "type": "integer", "default": 20, "maximum": 100 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zoekresultaten",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "query": { "type": "string" },
+                    "count": { "type": "integer" },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer" },
+                          "title": { "type": "string" },
+                          "match_type": { "type": "array", "items": { "type": "string" } }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/api/documents/semantic-search": {
+      "get": {
+        "operationId": "semanticSearch",
+        "summary": "Semantisch zoeken",
+        "description": "Zoek documenten op basis van betekenis met AI embeddings. Vindt conceptueel gerelateerde documenten.",
+        "tags": ["Zoeken"],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "description": "Zoekvraag in natuurlijke taal",
+            "schema": { "type": "string", "minLength": 3 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum resultaten (1-50)",
+            "schema": { "type": "integer", "default": 10, "maximum": 50 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Semantische zoekresultaten",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "query": { "type": "string" },
+                    "count": { "type": "integer" },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "document_id": { "type": "integer" },
+                          "title": { "type": "string" },
+                          "similarity": { "type": "number" },
+                          "excerpt": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/api/gremia": {
+      "get": {
+        "operationId": "getGrema",
+        "summary": "Gremia ophalen",
+        "description": "Haal de lijst van gremia (commissies en de gemeenteraad) op.",
+        "tags": ["Gremia"],
+        "responses": {
+          "200": {
+            "description": "Lijst van gremia",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": { "type": "integer" },
+                    "gremia": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer" },
+                          "name": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/api/statistics": {
+      "get": {
+        "operationId": "getStatistics",
+        "summary": "Statistieken ophalen",
+        "description": "Haal statistieken op over de database en zoekindex.",
+        "tags": ["Info"],
+        "responses": {
+          "200": {
+            "description": "Database statistieken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "database": { "type": "object" },
+                    "index": { "type": "object" },
+                    "municipality": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/api/coalitie": {
+      "get": {
+        "operationId": "getCoalitieAkkoord",
+        "summary": "Coalitieakkoord ophalen",
+        "description": "Haal coalitieakkoord informatie op met afspraken en voortgang per thema.",
+        "tags": ["Coalitie"],
+        "parameters": [
+          {
+            "name": "thema",
+            "in": "query",
+            "description": "Filter op thema (bijv: wonen, duurzaamheid)",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter op status",
+            "schema": {
+              "type": "string",
+              "enum": ["niet_gestart", "in_voorbereiding", "in_uitvoering", "gerealiseerd"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coalitieakkoord informatie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "summary": { "type": "object" },
+                    "afspraken": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "thema": { "type": "string" },
+                          "tekst": { "type": "string" },
+                          "status": { "type": "string" },
+                          "prioriteit": { "type": "string" },
+                          "gerelateerde_besluiten": { "type": "integer" }
+                        }
+                      }
+                    },
+                    "count": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/api/annotations": {
+      "get": {
+        "operationId": "getAnnotations",
+        "summary": "Annotaties ophalen",
+        "description": "Haal annotaties op met optionele filters op document, vergadering of zoekterm.",
+        "tags": ["Annotaties"],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "query",
+            "description": "Filter op document ID",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "meeting_id",
+            "in": "query",
+            "description": "Filter op vergadering ID",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Zoekterm in annotaties",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lijst van annotaties",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "annotations": { "type": "array", "items": { "type": "object" } }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      },
+      "post": {
+        "operationId": "addAnnotation",
+        "summary": "Annotatie toevoegen",
+        "description": "Voeg een annotatie of notitie toe, optioneel gekoppeld aan een document of vergadering.",
+        "tags": ["Annotaties"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["content"],
+                "properties": {
+                  "content": { "type": "string", "description": "Inhoud van de annotatie" },
+                  "document_id": { "type": "integer", "description": "Document ID om aan te koppelen" },
+                  "meeting_id": { "type": "integer", "description": "Vergadering ID om aan te koppelen" },
+                  "title": { "type": "string", "description": "Titel van de annotatie" },
+                  "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Annotatie toegevoegd",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "annotation_id": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API key voor authenticatie"
+      }
+    }
+  }
+}

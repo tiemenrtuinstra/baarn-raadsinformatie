@@ -138,6 +138,65 @@ docker compose down
 
 De sync service synchroniseert automatisch elke 6 uur.
 
+## REST API & ChatGPT Custom GPT
+
+De server bevat ook een REST API die je kunt gebruiken voor ChatGPT Custom GPT Actions.
+
+### API Server starten
+
+```bash
+# Direct
+python api_server.py
+
+# Of via Docker
+docker compose up api-server -d
+```
+
+De API is beschikbaar op `http://localhost:8000`:
+- Swagger UI: `http://localhost:8000/docs`
+- OpenAPI schema: `http://localhost:8000/openapi.json`
+
+### ChatGPT Custom GPT Setup
+
+1. **Deploy de API** naar een publieke URL (bijv. via ngrok, Cloudflare Tunnel, of een server)
+
+2. **Maak een Custom GPT** in ChatGPT:
+   - Ga naar [ChatGPT](https://chat.openai.com) → Explore GPTs → Create
+   - Geef het een naam: "Baarn Raadsinformatie Assistent"
+
+3. **Configureer Actions**:
+   - Klik op "Configure" → "Create new action"
+   - Import de OpenAPI schema van `/openapi.json` of kopieer uit `openapi.json`
+   - Vervang de server URL met jouw publieke URL
+
+4. **Authenticatie**:
+   - Kies "API Key" als authentication type
+   - Auth Type: "Custom"
+   - Custom Header Name: `X-API-Key`
+   - Voer je API key in (zie `.env` file)
+
+5. **Instructies** voor de GPT:
+   ```
+   Je bent een assistent voor politieke informatie over gemeente Baarn.
+   Gebruik de beschikbare actions om vergaderingen, documenten en
+   coalitieakkoord informatie op te halen. Geef altijd bronverwijzingen.
+   ```
+
+### API Endpoints
+
+| Endpoint | Methode | Beschrijving |
+|----------|---------|--------------|
+| `/api/meetings` | GET | Vergaderingen ophalen |
+| `/api/meetings/{id}` | GET | Vergadering details |
+| `/api/meetings/{id}/agenda` | GET | Agendapunten |
+| `/api/documents/{id}` | GET | Document ophalen |
+| `/api/documents/search` | GET | Keyword zoeken |
+| `/api/documents/semantic-search` | GET | Semantisch zoeken |
+| `/api/gremia` | GET | Commissies ophalen |
+| `/api/coalitie` | GET | Coalitieakkoord |
+| `/api/statistics` | GET | Database statistieken |
+| `/api/annotations` | GET/POST | Annotaties |
+
 ## Environment Variables
 
 | Variable | Beschrijving | Default |

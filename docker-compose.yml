@@ -1,9 +1,52 @@
-version: '3.8'
-
 services:
+  # REST API Server - voor ChatGPT Actions en andere integraties
+  api-server:
+    build: .
+    image: baarn-raadsinformatie:latest
+    container_name: baarn-raadsinformatie-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - LOG_LEVEL=INFO
+      - AUTO_SYNC_ENABLED=false
+      - NOTUBIZ_API_URL=https://api.notubiz.nl
+      - NOTUBIZ_API_TOKEN=11ef5846eaf0242ec4e0bea441379d699a77f703d
+      - API_KEY=${API_KEY:-baarn-api-key-change-me}
+    command: ["python", "api_server.py"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # MCP Server - wordt gestart door Claude Desktop via docker run
+  # Deze service is voor handmatig testen, niet voor productie
+  mcp-server:
+    build: .
+    image: baarn-raadsinformatie:latest
+    container_name: baarn-raadsinformatie-mcp
+    stdin_open: true
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - LOG_LEVEL=INFO
+      - AUTO_SYNC_ENABLED=false
+      - NOTUBIZ_API_URL=https://api.notubiz.nl
+      - NOTUBIZ_API_TOKEN=11ef5846eaf0242ec4e0bea441379d699a77f703d
+    command: ["python", "mcp_server.py"]
+    profiles:
+      - mcp  # Alleen starten met: docker compose --profile mcp up mcp-server
+
   # Background sync service - houdt data up-to-date
   sync-service:
     build: .
+    image: baarn-raadsinformatie:latest
     container_name: baarn-raadsinformatie-sync
     restart: unless-stopped
     volumes:
@@ -14,10 +57,11 @@ services:
       - AUTO_SYNC_ENABLED=true
       - AUTO_SYNC_DAYS=365
       - AUTO_DOWNLOAD_DOCS=true
-      - AUTO_INDEX_DOCS=false
-      - KEEP_PDF_FILES=false  # false = minimal storage (text only), true = keep PDFs
+      - AUTO_INDEX_DOCS=true
+      - KEEP_PDF_FILES=false
       - NOTUBIZ_API_URL=https://api.notubiz.nl
       - NOTUBIZ_API_TOKEN=11ef5846eaf0242ec4e0bea441379d699a77f703d
+    command: ["python", "sync_service.py"]
     healthcheck:
       test: ["CMD", "python", "-c", "from core.database import get_database; db = get_database(); stats = db.get_statistics(); assert stats.get('meetings', 0) >= 0"]
       interval: 5m
@@ -29,7 +73,6 @@ volumes:
   data:
   logs:
 
-# Networks (optioneel, voor toekomstige uitbreidingen)
 networks:
   default:
     name: baarn-raadsinformatie-network
