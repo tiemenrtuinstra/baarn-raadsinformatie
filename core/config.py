@@ -66,6 +66,12 @@ class Config:
     AUTO_DOWNLOAD_DOCS = os.getenv('AUTO_DOWNLOAD_DOCS', 'true').lower() == 'true'
     AUTO_INDEX_DOCS = os.getenv('AUTO_INDEX_DOCS', 'false').lower() == 'true'  # Embeddings indexeren
 
+    # Full history sync - haalt ALLE beschikbare data op (kan lang duren!)
+    # Zet op true voor volledige historische zoekfunctionaliteit
+    FULL_HISTORY_SYNC = os.getenv('FULL_HISTORY_SYNC', 'false').lower() == 'true'
+    # Startdatum voor volledige sync (Notubiz Baarn data begint rond 2010)
+    FULL_HISTORY_START = os.getenv('FULL_HISTORY_START', '2010-01-01')
+
     # ===== Storage =====
     # false (default): Download PDF → extract text → delete PDF (minimal storage)
     # true: Keep PDF files on disk after extraction

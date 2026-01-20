@@ -57,10 +57,14 @@ services:
       - AUTO_SYNC_ENABLED=true
       - AUTO_SYNC_DAYS=365
       - AUTO_DOWNLOAD_DOCS=true
-      - AUTO_INDEX_DOCS=true
+      - AUTO_INDEX_DOCS=false
       - KEEP_PDF_FILES=false
       - NOTUBIZ_API_URL=https://api.notubiz.nl
       - NOTUBIZ_API_TOKEN=11ef5846eaf0242ec4e0bea441379d699a77f703d
+      # Full history sync - haalt ALLE data op vanaf 2010
+      # Zet op true voor zoeken in historische dossiers (Paleis Soestdijk, etc)
+      - FULL_HISTORY_SYNC=${FULL_HISTORY_SYNC:-false}
+      - FULL_HISTORY_START=${FULL_HISTORY_START:-2010-01-01}
     command: ["python", "sync_service.py"]
     healthcheck:
       test: ["CMD", "python", "-c", "from core.database import get_database; db = get_database(); stats = db.get_statistics(); assert stats.get('meetings', 0) >= 0"]

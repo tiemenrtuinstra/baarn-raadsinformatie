@@ -68,7 +68,12 @@ def perform_sync(full_sync: bool = False) -> dict:
 
         # Determine date range
         if full_sync:
-            date_from = (date.today() - timedelta(days=Config.AUTO_SYNC_DAYS)).isoformat()
+            if Config.FULL_HISTORY_SYNC:
+                # Sync all historical data from configured start date
+                date_from = Config.FULL_HISTORY_START
+                logger.info(f'FULL HISTORY SYNC enabled - syncing from {date_from}')
+            else:
+                date_from = (date.today() - timedelta(days=Config.AUTO_SYNC_DAYS)).isoformat()
         else:
             # Only last 30 days for incremental sync
             date_from = (date.today() - timedelta(days=30)).isoformat()
