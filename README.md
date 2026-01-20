@@ -1,6 +1,6 @@
 # Baarn Raadsinformatie MCP Server
 
-[![CI/CD](https://github.com/tiementuinstra/baarn-raadsinformatie/actions/workflows/ci.yml/badge.svg)](https://github.com/tiementuinstra/baarn-raadsinformatie/actions/workflows/ci.yml)
+[![CI/CD](https://github.com/tiemenrtuinstra/baarn-raadsinformatie/actions/workflows/ci.yml/badge.svg)](https://github.com/tiemenrtuinstra/baarn-raadsinformatie/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![MCP](https://img.shields.io/badge/MCP-1.0+-green.svg)](https://modelcontextprotocol.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -27,7 +27,7 @@ Een **Model Context Protocol (MCP) server** die AI-assistenten toegang geeft tot
 
 ```bash
 # Clone repository
-git clone https://github.com/tiementuinstra/baarn-raadsinformatie.git
+git clone https://github.com/tiemenrtuinstra/baarn-raadsinformatie.git
 cd baarn-raadsinformatie
 
 # Maak virtual environment
