@@ -1,0 +1,93 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "baarn-raadsinformatie"
+version = "2.0.0"
+description = "MCP Server met agents voor politieke informatie gemeente Baarn via Notubiz"
+readme = "README.md"
+authors = [
+    {name = "Tiemen R. Tuinstra", email = "tiemen@tuinstra.family"}
+]
+license = {text = "MIT"}
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Natural Language :: Dutch",
+]
+keywords = [
+    "mcp",
+    "notubiz",
+    "baarn",
+    "gemeente",
+    "politiek",
+    "raadsinformatie",
+    "claude"
+]
+dependencies = [
+    "requests>=2.28.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0.0",
+    "pdfplumber>=0.9.0",
+    "mcp>=1.0.0",
+]
+
+[project.optional-dependencies]
+embeddings = [
+    "sentence-transformers>=2.2.0",
+    "torch>=2.0.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/tiementuinstra/baarn-raadsinformatie"
+"Bug Tracker" = "https://github.com/tiementuinstra/baarn-raadsinformatie/issues"
+"Notubiz Baarn" = "https://baarn.notubiz.nl"
+
+[project.scripts]
+baarn-raadsinformatie = "mcp_server:main"
+
+[tool.setuptools]
+py-modules = ["mcp_server"]
+packages = ["core", "providers", "analyzers", "shared"]
+
+[tool.setuptools.package-data]
+"*" = ["*.yaml", "*.json", "*.md"]
+
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | venv
+  | build
+  | dist
+  | data
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]

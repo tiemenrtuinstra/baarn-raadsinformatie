@@ -1,0 +1,222 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 mypy
+          pip install -r requirements.txt
+
+      - name: Lint with flake8
+        run: |
+          # Stop build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Exit-zero treats all errors as warnings
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Create test environment
+        run: |
+          mkdir -p data/documents data/cache logs
+          cp .env.example .env
+
+      - name: Test imports
+        run: |
+          python -c "from core.config import Config; print('Config OK')"
+          python -c "from core.database import Database; print('Database OK')"
+          python -c "from providers.notubiz_client import NotubizClient; print('NotubizClient OK')"
+          python -c "from providers.meeting_provider import MeetingProvider; print('MeetingProvider OK')"
+          python -c "from agents import get_agent_loader; print('AgentLoader OK')"
+
+      - name: Test database initialization
+        run: |
+          python -c "
+          from core.database import get_database
+          db = get_database()
+          stats = db.get_statistics()
+          print(f'Database stats: {stats}')
+          "
+
+      - name: Test agent loading
+        run: |
+          python -c "
+          from agents import get_agent_loader
+          loader = get_agent_loader()
+          agents = loader.load_agents()
+          print(f'Loaded {len(agents)} agents')
+          for name in list(agents.keys())[:5]:
+              print(f'  - {name}')
+          "
+
+  build-docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: baarn-raadsinformatie:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  integration-test:
+    name: Integration Test
+    runs-on: ubuntu-latest
+    needs: build-docker
+    env:
+      NOTUBIZ_API_URL: ${{ vars.NOTUBIZ_API_URL }}
+      NOTUBIZ_API_TOKEN: ${{ secrets.NOTUBIZ_API_TOKEN }}
+      NOTUBIZ_API_VERSION: ${{ vars.NOTUBIZ_API_VERSION }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create environment
+        run: |
+          mkdir -p data/documents data/cache logs
+          cat > .env << EOF
+          NOTUBIZ_API_URL=${{ vars.NOTUBIZ_API_URL }}
+          NOTUBIZ_API_TOKEN=${{ secrets.NOTUBIZ_API_TOKEN }}
+          NOTUBIZ_API_VERSION=${{ vars.NOTUBIZ_API_VERSION }}
+          LOG_LEVEL=DEBUG
+          DB_PATH=data/baarn.db
+          DOCUMENTS_PATH=data/documents
+          CACHE_PATH=data/cache
+          AUTO_SYNC_ENABLED=false
+          EOF
+
+      - name: Test Notubiz API connection
+        run: |
+          python -c "
+          from providers.notubiz_client import get_notubiz_client
+          client = get_notubiz_client()
+          org_id = client.get_organization_id()
+          print(f'Connected to Notubiz, organization ID: {org_id}')
+
+          gremia = client.get_gremia()
+          print(f'Found {len(gremia)} gremia')
+
+          events = client.get_events()
+          print(f'Found {len(events.get(\"events\", []))} events')
+          "
+
+      - name: Test sync functionality
+        run: |
+          python -c "
+          from providers.meeting_provider import get_meeting_provider
+          provider = get_meeting_provider()
+
+          # Sync gremia
+          count = provider.sync_gremia()
+          print(f'Synced {count} gremia')
+
+          # Get meetings (should work after gremia sync)
+          meetings = provider.get_meetings(limit=5)
+          print(f'Found {len(meetings)} meetings in database')
+          "
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [integration-test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from pyproject.toml
+        id: version
+        run: |
+          VERSION=$(grep -oP 'version = "\K[^"]+' pyproject.toml)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if tag exists
+        id: tag_check
+        run: |
+          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        if: steps.tag_check.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          body: |
+            ## Baarn Raadsinformatie MCP Server v${{ steps.version.outputs.version }}
+
+            ### Features
+            - 13 MCP Tools voor data access
+            - 24 AI Agents voor gespecialiseerde taken
+            - Automatische synchronisatie met Notubiz API
+            - Docker support
+
+            ### Installatie
+            ```bash
+            git clone https://github.com/tiementuinstra/baarn-raadsinformatie.git
+            cd baarn-raadsinformatie
+            pip install -r requirements.txt
+            ```
+          draft: false
+          prerelease: false

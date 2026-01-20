@@ -1,0 +1,213 @@
+# Coalitieakkoord Gemeente Baarn
+# Dit bestand bevat de afspraken uit het coalitieakkoord gestructureerd
+# zodat de coalitie-monitor agent de voortgang kan tracken.
+#
+# INSTRUCTIES:
+# 1. Vul de afspraken in uit het echte coalitieakkoord van Baarn
+# 2. De coalitie-monitor zoekt automatisch besluiten die hieraan raken
+# 3. Status kan handmatig of automatisch worden bijgewerkt
+#
+# STATUS OPTIES:
+# - niet_gestart: Nog geen actie ondernomen
+# - in_voorbereiding: Beleid wordt voorbereid
+# - in_uitvoering: Actief mee bezig
+# - gerealiseerd: Afspraak volledig uitgevoerd
+# - gewijzigd: Afspraak aangepast/bijgesteld
+# - vervallen: Afspraak niet meer actueel
+
+meta:
+  gemeente: Baarn
+  periode: 2022-2026  # Pas aan naar actuele coalitieperiode
+  partijen:
+    - VVD
+    - D66
+    - CDA
+    # Pas aan naar actuele coalitiepartijen
+  vastgesteld: "2022-06-01"  # Datum vaststelling
+  document_id: null  # Notubiz document ID indien bekend
+
+# Zoektermen voor het vinden van het coalitieakkoord in Notubiz
+zoektermen:
+  - coalitieakkoord
+  - collegeakkoord
+  - collegeprogramma
+  - "akkoord 2022"
+
+# =============================================================================
+# AFSPRAKEN PER THEMA
+# Vul hieronder de afspraken in uit het echte coalitieakkoord
+# =============================================================================
+
+themas:
+  # ---------------------------------------------------------------------------
+  wonen:
+    naam: "Wonen & Woningbouw"
+    afspraken:
+      - id: wonen-001
+        tekst: "Realiseren van X nieuwe woningen in de coalitieperiode"
+        toelichting: "Focus op betaalbare woningen voor starters en senioren"
+        status: in_uitvoering
+        prioriteit: hoog
+        zoektermen:
+          - woningbouw
+          - nieuwbouw
+          - woningen
+          - bouwplannen
+        gerelateerde_besluiten: []
+        # Voeg hier meeting_ids toe van relevante besluiten
+
+      - id: wonen-002
+        tekst: "Behoud sociale huurwoningen"
+        status: in_uitvoering
+        prioriteit: hoog
+        zoektermen:
+          - sociale huur
+          - corporatie
+          - huurwoningen
+        gerelateerde_besluiten: []
+
+  # ---------------------------------------------------------------------------
+  duurzaamheid:
+    naam: "Duurzaamheid & Klimaat"
+    afspraken:
+      - id: duurzaam-001
+        tekst: "Gemeente Baarn klimaatneutraal in 20XX"
+        status: in_uitvoering
+        prioriteit: hoog
+        zoektermen:
+          - klimaat
+          - energietransitie
+          - CO2
+          - duurzaamheid
+        gerelateerde_besluiten: []
+
+      - id: duurzaam-002
+        tekst: "Uitbreiding laadpalen elektrisch rijden"
+        status: in_voorbereiding
+        prioriteit: middel
+        zoektermen:
+          - laadpalen
+          - elektrisch rijden
+          - EV
+        gerelateerde_besluiten: []
+
+  # ---------------------------------------------------------------------------
+  mobiliteit:
+    naam: "Mobiliteit & Verkeer"
+    afspraken:
+      - id: mobiliteit-001
+        tekst: "Verbetering verkeersveiligheid in woonwijken"
+        status: in_uitvoering
+        prioriteit: middel
+        zoektermen:
+          - verkeersveiligheid
+          - 30 km
+          - verkeersmaatregelen
+        gerelateerde_besluiten: []
+
+      - id: mobiliteit-002
+        tekst: "Stimuleren fietsgebruik"
+        status: in_uitvoering
+        prioriteit: middel
+        zoektermen:
+          - fiets
+          - fietspad
+          - fietsparkeren
+        gerelateerde_besluiten: []
+
+  # ---------------------------------------------------------------------------
+  sociaal_domein:
+    naam: "Sociaal Domein"
+    afspraken:
+      - id: sociaal-001
+        tekst: "Toegankelijke zorg voor alle inwoners"
+        status: in_uitvoering
+        prioriteit: hoog
+        zoektermen:
+          - Wmo
+          - zorg
+          - ondersteuning
+        gerelateerde_besluiten: []
+
+      - id: sociaal-002
+        tekst: "Aanpak wachtlijsten jeugdzorg"
+        status: in_uitvoering
+        prioriteit: hoog
+        zoektermen:
+          - jeugdzorg
+          - jeugdhulp
+          - wachtlijst
+        gerelateerde_besluiten: []
+
+  # ---------------------------------------------------------------------------
+  economie:
+    naam: "Economie & Centrum"
+    afspraken:
+      - id: economie-001
+        tekst: "Versterking winkelcentrum"
+        status: in_voorbereiding
+        prioriteit: middel
+        zoektermen:
+          - centrum
+          - winkel
+          - ondernemers
+          - retail
+        gerelateerde_besluiten: []
+
+  # ---------------------------------------------------------------------------
+  veiligheid:
+    naam: "Veiligheid"
+    afspraken:
+      - id: veilig-001
+        tekst: "Intensivering handhaving"
+        status: in_uitvoering
+        prioriteit: middel
+        zoektermen:
+          - handhaving
+          - BOA
+          - veiligheid
+        gerelateerde_besluiten: []
+
+  # ---------------------------------------------------------------------------
+  financien:
+    naam: "Financiën"
+    afspraken:
+      - id: financien-001
+        tekst: "Solide financieel beleid"
+        status: in_uitvoering
+        prioriteit: hoog
+        zoektermen:
+          - begroting
+          - financiën
+          - OZB
+        gerelateerde_besluiten: []
+
+  # ---------------------------------------------------------------------------
+  bestuur:
+    naam: "Bestuur & Participatie"
+    afspraken:
+      - id: bestuur-001
+        tekst: "Verbeteren burgerparticipatie"
+        status: in_voorbereiding
+        prioriteit: middel
+        zoektermen:
+          - participatie
+          - inspraak
+          - burgers
+        gerelateerde_besluiten: []
+
+# =============================================================================
+# RAPPORTAGE
+# Wordt automatisch bijgewerkt door coalitie-monitor
+# =============================================================================
+
+rapportage:
+  laatste_update: null
+  totaal_afspraken: 0
+  per_status:
+    niet_gestart: 0
+    in_voorbereiding: 0
+    in_uitvoering: 0
+    gerealiseerd: 0
+    gewijzigd: 0
+    vervallen: 0

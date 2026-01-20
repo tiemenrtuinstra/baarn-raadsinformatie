@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # Background sync service - houdt data up-to-date
+  sync-service:
+    build: .
+    container_name: baarn-raadsinformatie-sync
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - LOG_LEVEL=INFO
+      - AUTO_SYNC_ENABLED=true
+      - AUTO_SYNC_DAYS=365
+      - AUTO_DOWNLOAD_DOCS=true
+      - AUTO_INDEX_DOCS=false
+      - KEEP_PDF_FILES=false  # false = minimal storage (text only), true = keep PDFs
+      - NOTUBIZ_API_URL=https://api.notubiz.nl
+      - NOTUBIZ_API_TOKEN=11ef5846eaf0242ec4e0bea441379d699a77f703d
+    healthcheck:
+      test: ["CMD", "python", "-c", "from core.database import get_database; db = get_database(); stats = db.get_statistics(); assert stats.get('meetings', 0) >= 0"]
+      interval: 5m
+      timeout: 30s
+      retries: 3
+      start_period: 2m
+
+volumes:
+  data:
+  logs:
+
+# Networks (optioneel, voor toekomstige uitbreidingen)
+networks:
+  default:
+    name: baarn-raadsinformatie-network
