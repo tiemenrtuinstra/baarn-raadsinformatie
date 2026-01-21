@@ -25,6 +25,7 @@ from core.document_index import get_document_index
 from core.coalitie_tracker import get_coalitie_tracker
 from providers.meeting_provider import get_meeting_provider
 from providers.document_provider import get_document_provider
+from providers.search_sync_provider import get_search_sync_provider
 from shared.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -222,6 +223,26 @@ class SyncResponse(BaseModel):
     documents_found: int
     documents_downloaded: Optional[int] = None
     documents_indexed: Optional[int] = None
+
+
+class SearchSyncRequest(BaseModel):
+    query: str = Field(..., description="Zoekterm (bijv. 'Paleis Soestdijk', 'De Speeldoos')")
+    start_date: str = Field("2010-01-01", description="Start datum (YYYY-MM-DD)")
+    end_date: Optional[str] = Field(None, description="Eind datum (YYYY-MM-DD), default vandaag")
+    download_documents: bool = Field(True, description="Download documenten en extraheer tekst")
+    index_documents: bool = Field(True, description="Indexeer voor semantic search")
+    limit: int = Field(100, description="Maximum aantal vergaderingen", ge=1, le=500)
+
+
+class SearchSyncResponse(BaseModel):
+    query: str
+    date_range: str
+    meetings_found: int
+    meetings_synced: int
+    documents_found: int
+    documents_downloaded: int
+    documents_indexed: int
+    errors: list[str] = []
 
 
 class AnnotationCreate(BaseModel):
@@ -601,6 +622,39 @@ async def sync_data(request: SyncRequest, api_key: str = Depends(verify_api_key)
         index = get_document_index()
         indexed, chunks = index.index_all_documents()
         result["documents_indexed"] = indexed
+
+    return result
+
+
+@app.post("/api/search-sync", response_model=SearchSyncResponse, tags=["Beheer"])
+async def search_and_sync(request: SearchSyncRequest, api_key: str = Depends(verify_api_key)):
+    """
+    Zoek naar een specifiek onderwerp en synchroniseer alleen relevante vergaderingen.
+
+    Dit is efficiënter dan een volledige sync wanneer je zoekt naar specifieke dossiers
+    zoals "Paleis Soestdijk" of "De Speeldoos".
+
+    - **query**: Zoekterm (bijv. "Paleis Soestdijk")
+    - **start_date**: Start datum voor zoeken (default: 2010-01-01)
+    - **end_date**: Eind datum (default: vandaag)
+    - **download_documents**: Download en extraheer tekst uit documenten
+    - **index_documents**: Indexeer documenten voor semantic search
+    - **limit**: Maximum aantal vergaderingen om te syncen
+
+    De sync zoekt eerst naar vergaderingen met de zoekterm in titel, beschrijving
+    of commissienaam. Als niets gevonden wordt, zoekt het dieper in agenda items
+    en document titels.
+    """
+    provider = get_search_sync_provider()
+
+    result = provider.search_and_sync(
+        query=request.query,
+        start_date=request.start_date,
+        end_date=request.end_date,
+        download_docs=request.download_documents,
+        index_docs=request.index_documents,
+        limit=request.limit
+    )
 
     return result
 

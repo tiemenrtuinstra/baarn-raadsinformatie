@@ -37,6 +37,7 @@ from core.document_index import get_document_index
 from core.coalitie_tracker import get_coalitie_tracker
 from providers.meeting_provider import get_meeting_provider
 from providers.document_provider import get_document_provider
+from providers.search_sync_provider import get_search_sync_provider
 from agents import get_agent_loader, get_agent
 from shared.logging_config import get_mcp_logger
 
@@ -658,6 +659,22 @@ async def list_tools() -> list[Tool]:
                 "required": ["afspraak_id"]
             }
         ),
+        Tool(
+            name="search_and_sync",
+            description="Zoek naar een specifiek onderwerp in historische data en synchroniseer alleen relevante vergaderingen en documenten. Efficiënter dan volledige sync voor dossiers zoals 'Paleis Soestdijk' of 'De Speeldoos'.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Zoekterm (bijv: 'Paleis Soestdijk', 'De Speeldoos')"},
+                    "start_date": {"type": "string", "description": "Start datum (YYYY-MM-DD)", "default": "2010-01-01"},
+                    "end_date": {"type": "string", "description": "Eind datum (YYYY-MM-DD), default vandaag"},
+                    "download_documents": {"type": "boolean", "description": "Download documenten en extraheer tekst", "default": True},
+                    "index_documents": {"type": "boolean", "description": "Indexeer voor semantic search", "default": True},
+                    "limit": {"type": "integer", "description": "Maximum aantal vergaderingen", "default": 100}
+                },
+                "required": ["query"]
+            }
+        ),
     ]
 
 
@@ -719,9 +736,15 @@ async def handle_tool(name: str, args: dict) -> Any:
         if not doc:
             return {"error": "Document not found"}
         text = doc.get('text_content', '')
+        # Build Notubiz URL if we have a notubiz_id
+        notubiz_url = None
+        if doc.get('notubiz_id'):
+            notubiz_url = f"https://api.notubiz.nl/document/{doc['notubiz_id']}/1"
         return {
             "id": doc['id'],
             "title": doc['title'],
+            "url": doc.get('url') or notubiz_url,
+            "notubiz_url": notubiz_url,
             "has_text": bool(text),
             "text_content": text[:10000] if text else None,
             "truncated": len(text) > 10000 if text else False
@@ -731,7 +754,12 @@ async def handle_tool(name: str, args: dict) -> Any:
         provider = get_document_provider()
         results = provider.search_documents(args['query'], args.get('limit', 20))
         return {"query": args['query'], "count": len(results), "results": [
-            {"id": d['id'], "title": d['title'], "match_type": d.get('match_type', [])}
+            {
+                "id": d['id'],
+                "title": d['title'],
+                "url": d.get('url') or (f"https://api.notubiz.nl/document/{d['notubiz_id']}/1" if d.get('notubiz_id') else None),
+                "match_type": d.get('match_type', [])
+            }
             for d in results
         ]}
 
@@ -843,6 +871,18 @@ async def handle_tool(name: str, args: dict) -> Any:
                 result["meeting_linked"] = args['link_meeting_id']
                 result["success"] = True
 
+        return result
+
+    elif name == "search_and_sync":
+        provider = get_search_sync_provider()
+        result = provider.search_and_sync(
+            query=args['query'],
+            start_date=args.get('start_date', '2010-01-01'),
+            end_date=args.get('end_date'),
+            download_docs=args.get('download_documents', True),
+            index_docs=args.get('index_documents', True),
+            limit=args.get('limit', 100)
+        )
         return result
 
     else:
