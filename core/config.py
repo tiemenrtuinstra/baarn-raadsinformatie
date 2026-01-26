@@ -37,10 +37,23 @@ class Config:
     NOTUBIZ_API_URL = os.getenv('NOTUBIZ_API_URL', 'https://api.notubiz.nl')
     NOTUBIZ_API_TOKEN = os.getenv('NOTUBIZ_API_TOKEN', '11ef5846eaf0242ec4e0bea441379d699a77f703d')
     NOTUBIZ_API_VERSION = os.getenv('NOTUBIZ_API_VERSION', '1.17.0')
-    NOTUBIZ_ORGANIZATION_ID = os.getenv('NOTUBIZ_ORGANIZATION_ID', None)
+    NOTUBIZ_ORGANISATION_ID = os.getenv('NOTUBIZ_ORGANISATION_ID', None)
+    # Auth token voor historische data - vereist voor:
+    # - Ophalen van vergaderingen uit het verleden (niet alleen aankomende)
+    # - Direct downloaden van documenten via /document/{id} endpoint
+    # Verkrijg via Notubiz beheerportaal of neem contact op met Notubiz
+    NOTUBIZ_AUTH_TOKEN = os.getenv('NOTUBIZ_AUTH_TOKEN', None)
+
+    # ===== Raadsinformatie web search =====
+    RAADSINFORMATIE_BASE_URL = os.getenv(
+        'RAADSINFORMATIE_BASE_URL',
+        'https://baarn.raadsinformatie.nl'
+    )
 
     # Baarn specifiek
     MUNICIPALITY_NAME = 'Baarn'
+    ORCHESTRATOR_AGENT_NAME = os.getenv('ORCHESTRATOR_AGENT_NAME', 'orchestrator')
+    FORCE_ORCHESTRATOR = os.getenv('FORCE_ORCHESTRATOR', 'true').lower() == 'true'
 
     # ===== Logging =====
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
@@ -48,12 +61,18 @@ class Config:
     # ===== Cache =====
     CACHE_TTL_HOURS = int(os.getenv('CACHE_TTL_HOURS', '24'))
 
-    # ===== Embeddings =====
+    # ===== Embeddings (VERPLICHT) =====
     EMBEDDINGS_MODEL = os.getenv(
         'EMBEDDINGS_MODEL',
         'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
     )
-    EMBEDDINGS_ENABLED = os.getenv('EMBEDDINGS_ENABLED', 'true').lower() == 'true'
+    # Embeddings zijn VERPLICHT voor semantic search - geen optionele configuratie meer
+
+    # ===== Transcriptie (Whisper) =====
+    WHISPER_MODEL = os.getenv('WHISPER_MODEL', 'small')  # tiny, base, small, medium, large-v3
+    TRANSCRIPTION_LANGUAGE = os.getenv('TRANSCRIPTION_LANGUAGE', 'nl')  # of 'auto'
+    KEEP_AUDIO_FILES = os.getenv('KEEP_AUDIO_FILES', 'false').lower() == 'true'
+    AUDIO_DIR = DATA_DIR / 'audio'
 
     # ===== MCP Server =====
     MCP_PROTOCOL_VERSION = '2024-11-05'
@@ -64,11 +83,11 @@ class Config:
     AUTO_SYNC_ENABLED = os.getenv('AUTO_SYNC_ENABLED', 'true').lower() == 'true'
     AUTO_SYNC_DAYS = int(os.getenv('AUTO_SYNC_DAYS', '365'))  # Hoeveel dagen terug bij eerste sync
     AUTO_DOWNLOAD_DOCS = os.getenv('AUTO_DOWNLOAD_DOCS', 'true').lower() == 'true'
-    AUTO_INDEX_DOCS = os.getenv('AUTO_INDEX_DOCS', 'false').lower() == 'true'  # Embeddings indexeren
+    AUTO_INDEX_DOCS = os.getenv('AUTO_INDEX_DOCS', 'true').lower() == 'true'  # Embeddings indexeren (default: aan)
 
     # Full history sync - haalt ALLE beschikbare data op (kan lang duren!)
-    # Zet op true voor volledige historische zoekfunctionaliteit
-    FULL_HISTORY_SYNC = os.getenv('FULL_HISTORY_SYNC', 'false').lower() == 'true'
+    # Standaard aan voor volledige historische zoekfunctionaliteit
+    FULL_HISTORY_SYNC = os.getenv('FULL_HISTORY_SYNC', 'true').lower() == 'true'
     # Startdatum voor volledige sync (Notubiz Baarn data begint rond 2010)
     FULL_HISTORY_START = os.getenv('FULL_HISTORY_START', '2010-01-01')
 
@@ -76,6 +95,8 @@ class Config:
     # false (default): Download PDF → extract text → delete PDF (minimal storage)
     # true: Keep PDF files on disk after extraction
     KEEP_PDF_FILES = os.getenv('KEEP_PDF_FILES', 'false').lower() == 'true'
+    STORE_FILES_IN_DB = os.getenv('STORE_FILES_IN_DB', 'false').lower() == 'true'  # Default false: images to filesystem
+    MAX_FILE_SIZE_MB = int(os.getenv('MAX_FILE_SIZE_MB', '25'))
 
     # ===== Gremia filters =====
     # Welke gremia (commissies) we willen indexeren
@@ -103,7 +124,7 @@ class Config:
             'notubiz': {
                 'api_url': cls.NOTUBIZ_API_URL,
                 'api_version': cls.NOTUBIZ_API_VERSION,
-                'organization_id': cls.NOTUBIZ_ORGANIZATION_ID,
+                'organization_id': cls.NOTUBIZ_ORGANISATION_ID,
                 'municipality': cls.MUNICIPALITY_NAME
             },
             'paths': {
@@ -113,8 +134,8 @@ class Config:
                 'cache_dir': str(cls.CACHE_DIR)
             },
             'features': {
-                'embeddings_enabled': cls.EMBEDDINGS_ENABLED,
-                'embeddings_model': cls.EMBEDDINGS_MODEL if cls.EMBEDDINGS_ENABLED else None
+                'embeddings_enabled': True,  # Altijd aan (verplicht)
+                'embeddings_model': cls.EMBEDDINGS_MODEL
             }
         }
 

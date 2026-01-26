@@ -37,7 +37,12 @@ from core.document_index import get_document_index
 from core.coalitie_tracker import get_coalitie_tracker
 from providers.meeting_provider import get_meeting_provider
 from providers.document_provider import get_document_provider
+from providers.notubiz_client import get_notubiz_client
 from providers.search_sync_provider import get_search_sync_provider
+from providers.document_generator import get_document_generator
+from providers.election_program_provider import get_election_program_provider
+from providers.standpunt_provider import get_standpunt_provider
+from providers.visit_report_provider import get_visit_report_provider
 from agents import get_agent_loader, get_agent
 from shared.logging_config import get_mcp_logger
 
@@ -206,6 +211,13 @@ async def list_prompts() -> list[Prompt]:
     loader = get_agent_loader()
     agents = loader.load_agents()
 
+    if Config.FORCE_ORCHESTRATOR:
+        orchestrator = agents.get(Config.ORCHESTRATOR_AGENT_NAME)
+        if not orchestrator:
+            logger.warning(f"Orchestrator agent not found: {Config.ORCHESTRATOR_AGENT_NAME}")
+            return []
+        agents = {orchestrator.name: orchestrator}
+
     prompts = []
     for agent in agents.values():
         prompts.append(Prompt(
@@ -229,6 +241,10 @@ async def list_prompts() -> list[Prompt]:
 async def get_prompt(name: str, arguments: dict | None = None) -> list[PromptMessage]:
     """Get a specific prompt/agent - loads system prompt from YAML."""
     await perform_initial_sync()
+
+    if Config.FORCE_ORCHESTRATOR and name != Config.ORCHESTRATOR_AGENT_NAME:
+        logger.info(f"Routing prompt '{name}' to orchestrator")
+        name = Config.ORCHESTRATOR_AGENT_NAME
 
     args = arguments or {}
 
@@ -636,6 +652,12 @@ async def list_tools() -> list[Tool]:
             inputSchema={"type": "object", "properties": {}}
         ),
         Tool(
+            name="get_notubiz_status",
+            description="Bekijk de Notubiz API configuratie en auth status. "
+            "Toont of historische data toegankelijk is.",
+            inputSchema={"type": "object", "properties": {}}
+        ),
+        Tool(
             name="get_coalitie_akkoord",
             description="Haal coalitieakkoord informatie op met afspraken en voortgang.",
             inputSchema={
@@ -673,6 +695,627 @@ async def list_tools() -> list[Tool]:
                     "limit": {"type": "integer", "description": "Maximum aantal vergaderingen", "default": 100}
                 },
                 "required": ["query"]
+            }
+        ),
+        Tool(
+            name="get_upcoming_meetings",
+            description="Haal aankomende vergaderingen op (vandaag, morgen, deze week, volgende week). Handig voor vragen als 'wat staat er morgen op de agenda?'",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string",
+                        "description": "Periode: 'today' (vandaag), 'tomorrow' (morgen), 'this_week' (deze week), 'next_week' (volgende week), 'this_month' (deze maand)",
+                        "enum": ["today", "tomorrow", "this_week", "next_week", "this_month"],
+                        "default": "this_week"
+                    },
+                    "include_agenda": {"type": "boolean", "description": "Inclusief agendapunten", "default": True},
+                    "include_documents": {"type": "boolean", "description": "Inclusief documenten", "default": False}
+                }
+            }
+        ),
+        # ==================== Media/Broadcast Tools ====================
+        Tool(
+            name="get_upcoming_broadcasts",
+            description="Haal aankomende live uitzendingen op. Toont vergaderingen met geplande livestreams.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "limit": {"type": "integer", "description": "Maximum aantal resultaten", "default": 10}
+                }
+            }
+        ),
+        Tool(
+            name="get_meeting_video",
+            description="Haal video/stream URL op voor een vergadering. Nuttig voor transcriptie of bekijken van opnames.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "meeting_id": {"type": "integer", "description": "Vergadering ID (database ID of Notubiz ID)"}
+                },
+                "required": ["meeting_id"]
+            }
+        ),
+        Tool(
+            name="get_media_info",
+            description="Haal media informatie (video/audio) op voor meerdere vergaderingen tegelijk.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "event_ids": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Lijst van event/meeting IDs"
+                    }
+                },
+                "required": ["event_ids"]
+            }
+        ),
+        Tool(
+            name="get_organization_info",
+            description="Haal organisatie informatie op inclusief logo URL en dashboard instellingen.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "include_settings": {"type": "boolean", "description": "Inclusief dashboard/entity settings", "default": False}
+                }
+            }
+        ),
+        # ==================== Verkiezingsprogramma Tools ====================
+        Tool(
+            name="list_parties",
+            description="Lijst alle politieke partijen in Baarn (actief en historisch).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "active_only": {"type": "boolean", "description": "Alleen actieve partijen", "default": False}
+                }
+            }
+        ),
+        Tool(
+            name="sync_parties",
+            description="Synchroniseer politieke partijen door de gemeente Baarn website te checken voor actuele fracties. Detecteert nieuwe partijen en deactiveert verdwenen partijen.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "initialize_known": {"type": "boolean", "description": "Initialiseer ook bekende historische partijen", "default": True}
+                }
+            }
+        ),
+        Tool(
+            name="get_party_sync_status",
+            description="Bekijk de huidige status van partij-synchronisatie: aantal actieve/historische partijen.",
+            inputSchema={"type": "object", "properties": {}}
+        ),
+        Tool(
+            name="search_election_programs",
+            description="Zoek in verkiezingsprogramma's van Baarnse politieke partijen.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Zoekterm"},
+                    "party": {"type": "string", "description": "Filter op partij (naam of afkorting)"},
+                    "year_from": {"type": "integer", "description": "Vanaf verkiezingsjaar"},
+                    "year_to": {"type": "integer", "description": "Tot verkiezingsjaar"},
+                    "limit": {"type": "integer", "description": "Maximum resultaten", "default": 20}
+                },
+                "required": ["query"]
+            }
+        ),
+        Tool(
+            name="compare_party_positions",
+            description="Vergelijk standpunten van partijen over een specifiek onderwerp.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "topic": {"type": "string", "description": "Onderwerp (bijv: 'woningbouw', 'duurzaamheid', 'verkeer')"},
+                    "parties": {"type": "array", "items": {"type": "string"}, "description": "Partijen om te vergelijken (optioneel, standaard alle)"},
+                    "year": {"type": "integer", "description": "Specifiek verkiezingsjaar (optioneel)"}
+                },
+                "required": ["topic"]
+            }
+        ),
+        Tool(
+            name="get_party_history",
+            description="Bekijk historische ontwikkeling van een partijstandpunt over de jaren.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "party": {"type": "string", "description": "Partij naam of afkorting"},
+                    "topic": {"type": "string", "description": "Onderwerp"}
+                },
+                "required": ["party", "topic"]
+            }
+        ),
+        # ==================== Document Generatie Tools ====================
+        Tool(
+            name="generate_motie",
+            description="Genereer een motie document in Word formaat conform Notubiz standaard.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "titel": {"type": "string", "description": "Titel van de motie"},
+                    "indieners": {"type": "array", "items": {"type": "string"}, "description": "Namen van de indieners"},
+                    "partijen": {"type": "array", "items": {"type": "string"}, "description": "Partijen van de indieners"},
+                    "constateringen": {"type": "array", "items": {"type": "string"}, "description": "Constaterende dat... punten"},
+                    "overwegingen": {"type": "array", "items": {"type": "string"}, "description": "Overwegende dat... punten"},
+                    "verzoeken": {"type": "array", "items": {"type": "string"}, "description": "Verzoekt het college... punten"},
+                    "vergadering_datum": {"type": "string", "description": "Datum vergadering (YYYY-MM-DD)"},
+                    "agendapunt": {"type": "string", "description": "Agendapunt nummer"},
+                    "toelichting": {"type": "string", "description": "Optionele toelichting"}
+                },
+                "required": ["titel", "indieners", "partijen", "constateringen", "overwegingen", "verzoeken"]
+            }
+        ),
+        Tool(
+            name="generate_amendement",
+            description="Genereer een amendement document in Word formaat conform Notubiz standaard.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "titel": {"type": "string", "description": "Titel van het amendement"},
+                    "indieners": {"type": "array", "items": {"type": "string"}, "description": "Namen van de indieners"},
+                    "partijen": {"type": "array", "items": {"type": "string"}, "description": "Partijen van de indieners"},
+                    "raadsvoorstel_nummer": {"type": "string", "description": "Nummer van het raadsvoorstel"},
+                    "raadsvoorstel_titel": {"type": "string", "description": "Titel van het raadsvoorstel"},
+                    "wijzigingen": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "oorspronkelijk": {"type": "string", "description": "Oorspronkelijke tekst"},
+                                "wordt": {"type": "string", "description": "Nieuwe tekst"}
+                            },
+                            "required": ["oorspronkelijk", "wordt"]
+                        },
+                        "description": "Lijst van tekstwijzigingen"
+                    },
+                    "toelichting": {"type": "string", "description": "Toelichting op de wijzigingen"},
+                    "vergadering_datum": {"type": "string", "description": "Datum vergadering (YYYY-MM-DD)"},
+                    "agendapunt": {"type": "string", "description": "Agendapunt nummer"}
+                },
+                "required": ["titel", "indieners", "partijen", "raadsvoorstel_nummer", "raadsvoorstel_titel", "wijzigingen"]
+            }
+        ),
+        # ==================== Standpunten Tools ====================
+        Tool(
+            name="add_standpunt",
+            description="Voeg een politiek standpunt toe voor een partij of raadslid.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "party_id": {"type": "integer", "description": "Partij ID (of raadslid_id)"},
+                    "raadslid_id": {"type": "integer", "description": "Raadslid ID (of party_id)"},
+                    "topic": {"type": "string", "description": "Onderwerp (bijv: 'Woningbouw', 'Duurzaamheid')"},
+                    "position_summary": {"type": "string", "description": "Korte samenvatting van het standpunt"},
+                    "position_text": {"type": "string", "description": "Volledige tekst/toelichting"},
+                    "stance": {"type": "string", "enum": ["voor", "tegen", "neutraal", "genuanceerd", "onbekend"], "description": "Positie"},
+                    "stance_strength": {"type": "integer", "minimum": 1, "maximum": 5, "description": "Sterkte van het standpunt (1-5)"},
+                    "source_type": {"type": "string", "enum": ["verkiezingsprogramma", "motie", "amendement", "debat", "stemming", "interview", "persbericht", "website", "anders"], "description": "Type bron"},
+                    "source_document_id": {"type": "integer", "description": "Document ID van de bron"},
+                    "source_meeting_id": {"type": "integer", "description": "Vergadering ID van de bron"},
+                    "source_quote": {"type": "string", "description": "Exacte quote uit de bron"},
+                    "position_date": {"type": "string", "description": "Datum van standpunt (YYYY-MM-DD)"},
+                    "subtopic": {"type": "string", "description": "Subonderwerp"},
+                    "tags": {"type": "array", "items": {"type": "string"}, "description": "Tags"}
+                },
+                "required": ["topic", "position_summary", "source_type"]
+            }
+        ),
+        Tool(
+            name="search_standpunten",
+            description="Zoek standpunten met filters op partij, raadslid, topic, stance, etc.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Zoekterm in standpunten"},
+                    "party_id": {"type": "integer", "description": "Filter op partij"},
+                    "party_name": {"type": "string", "description": "Filter op partijnaam"},
+                    "raadslid_id": {"type": "integer", "description": "Filter op raadslid"},
+                    "topic": {"type": "string", "description": "Filter op topic"},
+                    "stance": {"type": "string", "enum": ["voor", "tegen", "neutraal", "genuanceerd", "onbekend"], "description": "Filter op stance"},
+                    "verified_only": {"type": "boolean", "description": "Alleen geverifieerde standpunten", "default": False},
+                    "limit": {"type": "integer", "description": "Maximum resultaten", "default": 50}
+                }
+            }
+        ),
+        Tool(
+            name="compare_standpunten",
+            description="Vergelijk standpunten van verschillende partijen over een specifiek onderwerp.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "topic": {"type": "string", "description": "Onderwerp om te vergelijken"},
+                    "party_ids": {"type": "array", "items": {"type": "integer"}, "description": "Specifieke partij IDs (optioneel)"},
+                    "include_raadsleden": {"type": "boolean", "description": "Ook individuele raadsleden meenemen", "default": False}
+                },
+                "required": ["topic"]
+            }
+        ),
+        Tool(
+            name="get_standpunt_history",
+            description="Bekijk de historische ontwikkeling van standpunten over een topic.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "topic": {"type": "string", "description": "Onderwerp"},
+                    "party_id": {"type": "integer", "description": "Filter op partij"},
+                    "raadslid_id": {"type": "integer", "description": "Filter op raadslid"}
+                },
+                "required": ["topic"]
+            }
+        ),
+        Tool(
+            name="get_party_context",
+            description="Haal context op van een partij voor party-aligned antwoorden. Geeft overzicht van standpunten, stemgedrag, en prioriteiten.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "party_id": {"type": "integer", "description": "Partij ID"},
+                    "party_name": {"type": "string", "description": "Partijnaam (alternatief voor ID)"},
+                    "topics": {"type": "array", "items": {"type": "string"}, "description": "Specifieke topics (optioneel)"}
+                }
+            }
+        ),
+        Tool(
+            name="list_raadsleden",
+            description="Lijst alle raadsleden, wethouders en steunfractieleden met optionele filters.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "party_id": {"type": "integer", "description": "Filter op partij"},
+                    "active_only": {"type": "boolean", "description": "Alleen actieve leden", "default": True},
+                    "include_steunfractie": {"type": "boolean", "description": "Inclusief steunfractieleden", "default": True}
+                }
+            }
+        ),
+        Tool(
+            name="add_raadslid",
+            description="Voeg een raadslid, wethouder of steunfractielid toe aan de database.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "Volledige naam"},
+                    "party_id": {"type": "integer", "description": "Partij ID"},
+                    "email": {"type": "string", "description": "E-mailadres"},
+                    "start_date": {"type": "string", "description": "Start datum (YYYY-MM-DD)"},
+                    "is_wethouder": {"type": "boolean", "description": "Is wethouder", "default": False},
+                    "is_fractievoorzitter": {"type": "boolean", "description": "Is fractievoorzitter", "default": False},
+                    "is_steunfractielid": {"type": "boolean", "description": "Is steunfractielid (geen stemrecht in raad)", "default": False}
+                },
+                "required": ["name"]
+            }
+        ),
+        Tool(
+            name="verify_standpunt",
+            description="Markeer een standpunt als geverifieerd.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "standpunt_id": {"type": "integer", "description": "ID van het standpunt"},
+                    "verified": {"type": "boolean", "description": "Verificatie status", "default": True}
+                },
+                "required": ["standpunt_id"]
+            }
+        ),
+        Tool(
+            name="get_standpunt_topics",
+            description="Haal de lijst van standpunt-topics op.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "parent_id": {"type": "integer", "description": "Filter op parent topic (voor subtopics)"}
+                }
+            }
+        ),
+        # ==================== Visit Report Tools ====================
+        Tool(
+            name="add_visit_report",
+            description="Voeg een werkbezoek-verslag toe met handmatige upload (base64).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "title": {"type": "string", "description": "Titel van het verslag"},
+                    "date": {"type": "string", "description": "Datum (YYYY-MM-DD)"},
+                    "location": {"type": "string", "description": "Locatie"},
+                    "participants": {"type": "array", "items": {"type": "string"}, "description": "Deelnemers"},
+                    "organizations": {"type": "array", "items": {"type": "string"}, "description": "Organisaties"},
+                    "topics": {"type": "array", "items": {"type": "string"}, "description": "Onderwerpen/tags"},
+                    "visit_type": {"type": "string", "description": "Type werkbezoek"},
+                    "summary": {"type": "string", "description": "Korte samenvatting"},
+                    "status": {"type": "string", "description": "Status (draft/published/archived)"},
+                    "source_url": {"type": "string", "description": "Bron URL (optioneel)"},
+                    "attachments": {"type": "array", "items": {"type": "string"}, "description": "Bijlagen/IDs (optioneel)"},
+                    "filename": {"type": "string", "description": "Bestandsnaam"},
+                    "mime_type": {"type": "string", "description": "MIME type"},
+                    "file_base64": {"type": "string", "description": "Bestand als base64"}
+                },
+                "required": ["title", "filename", "mime_type", "file_base64"]
+            }
+        ),
+        Tool(
+            name="import_visit_reports",
+            description="Maak werkbezoek-verslagen aan op basis van bestaande documenten.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "document_ids": {"type": "array", "items": {"type": "integer"}, "description": "Document IDs"},
+                    "date": {"type": "string", "description": "Datum (YYYY-MM-DD)"},
+                    "location": {"type": "string", "description": "Locatie"},
+                    "participants": {"type": "array", "items": {"type": "string"}, "description": "Deelnemers"},
+                    "organizations": {"type": "array", "items": {"type": "string"}, "description": "Organisaties"},
+                    "topics": {"type": "array", "items": {"type": "string"}, "description": "Onderwerpen/tags"},
+                    "visit_type": {"type": "string", "description": "Type werkbezoek"},
+                    "summary": {"type": "string", "description": "Korte samenvatting"},
+                    "status": {"type": "string", "description": "Status (draft/published/archived)"}
+                },
+                "required": ["document_ids"]
+            }
+        ),
+        Tool(
+            name="list_visit_reports",
+            description="Lijst werkbezoek-verslagen met filters.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "date_from": {"type": "string", "description": "Start datum (YYYY-MM-DD)"},
+                    "date_to": {"type": "string", "description": "Eind datum (YYYY-MM-DD)"},
+                    "status": {"type": "string", "description": "Status filter"},
+                    "visit_type": {"type": "string", "description": "Type filter"},
+                    "limit": {"type": "integer", "description": "Maximum resultaten", "default": 50},
+                    "offset": {"type": "integer", "description": "Offset", "default": 0}
+                }
+            }
+        ),
+        Tool(
+            name="get_visit_report",
+            description="Haal een werkbezoek-verslag op.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "visit_report_id": {"type": "integer", "description": "Verslag ID"}
+                },
+                "required": ["visit_report_id"]
+            }
+        ),
+        Tool(
+            name="search_visit_reports",
+            description="Zoek in werkbezoek-verslagen (incl. gekoppelde document tekst).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Zoekterm"},
+                    "limit": {"type": "integer", "description": "Maximum resultaten", "default": 50}
+                },
+                "required": ["query"]
+            }
+        ),
+        Tool(
+            name="update_visit_report",
+            description="Werk metadata van een werkbezoek-verslag bij.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "visit_report_id": {"type": "integer", "description": "Verslag ID"},
+                    "title": {"type": "string", "description": "Titel"},
+                    "date": {"type": "string", "description": "Datum (YYYY-MM-DD)"},
+                    "location": {"type": "string", "description": "Locatie"},
+                    "participants": {"type": "array", "items": {"type": "string"}, "description": "Deelnemers"},
+                    "organizations": {"type": "array", "items": {"type": "string"}, "description": "Organisaties"},
+                    "topics": {"type": "array", "items": {"type": "string"}, "description": "Onderwerpen/tags"},
+                    "visit_type": {"type": "string", "description": "Type werkbezoek"},
+                    "summary": {"type": "string", "description": "Samenvatting"},
+                    "status": {"type": "string", "description": "Status"},
+                    "source_url": {"type": "string", "description": "Bron URL"},
+                    "attachments": {"type": "array", "items": {"type": "string"}, "description": "Bijlagen"}
+                },
+                "required": ["visit_report_id"]
+            }
+        ),
+        Tool(
+            name="delete_visit_report",
+            description="Archiveer (soft delete) een werkbezoek-verslag.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "visit_report_id": {"type": "integer", "description": "Verslag ID"}
+                },
+                "required": ["visit_report_id"]
+            }
+        ),
+        Tool(
+            name="link_visit_report_to_meeting",
+            description="Koppel een werkbezoek-verslag aan een vergadering.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "visit_report_id": {"type": "integer", "description": "Verslag ID"},
+                    "meeting_id": {"type": "integer", "description": "Vergadering ID"}
+                },
+                "required": ["visit_report_id", "meeting_id"]
+            }
+        ),
+        Tool(
+            name="index_visit_reports",
+            description="Indexeer gekoppelde documenten van werkbezoek-verslagen.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "visit_report_ids": {"type": "array", "items": {"type": "integer"}, "description": "Specifieke verslag IDs (optioneel)"}
+                }
+            }
+        ),
+        # ==================== Transcriptie Tools ====================
+        Tool(
+            name="transcribe_meeting",
+            description="Transcribeer de video van een vergadering met AI (Whisper). "
+            "Zet gesproken tekst om naar doorzoekbare tekst.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "meeting_id": {"type": "integer", "description": "Database ID van de vergadering"}
+                },
+                "required": ["meeting_id"]
+            }
+        ),
+        Tool(
+            name="transcribe_url",
+            description="Transcribeer video/audio van een URL (YouTube, direct link).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "url": {"type": "string", "description": "Video/audio URL"},
+                    "source_type": {
+                        "type": "string",
+                        "enum": ["youtube", "notubiz", "direct"],
+                        "description": "Type bron",
+                        "default": "direct"
+                    }
+                },
+                "required": ["url"]
+            }
+        ),
+        Tool(
+            name="search_transcriptions",
+            description="Zoek in video/audio transcripties met timestamps. "
+            "Vindt relevante fragmenten en geeft tijdstippen in de video.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Zoekvraag"},
+                    "limit": {"type": "integer", "description": "Maximum resultaten", "default": 10}
+                },
+                "required": ["query"]
+            }
+        ),
+        Tool(
+            name="get_transcription_status",
+            description="Bekijk hoeveel vergaderingen nog getranscribeerd moeten worden.",
+            inputSchema={"type": "object", "properties": {}}
+        ),
+        # ==================== Samenvatting Tools ====================
+        Tool(
+            name="get_document_for_summary",
+            description="Haal document content op voor het maken van een samenvatting. "
+            "Retourneert de tekst die samengevat kan worden.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "document_id": {"type": "integer", "description": "Document ID"}
+                },
+                "required": ["document_id"]
+            }
+        ),
+        Tool(
+            name="save_document_summary",
+            description="Sla een gegenereerde samenvatting op voor een document.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "document_id": {"type": "integer", "description": "Document ID"},
+                    "summary_text": {"type": "string", "description": "De samenvatting"},
+                    "summary_type": {
+                        "type": "string",
+                        "enum": ["kort", "normaal", "lang"],
+                        "default": "normaal"
+                    }
+                },
+                "required": ["document_id", "summary_text"]
+            }
+        ),
+        Tool(
+            name="get_meeting_for_summary",
+            description="Haal vergadering content op voor het maken van een samenvatting. "
+            "Combineert agenda, documenten en transcriptie.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "meeting_id": {"type": "integer", "description": "Vergadering ID"}
+                },
+                "required": ["meeting_id"]
+            }
+        ),
+        Tool(
+            name="save_meeting_summary",
+            description="Sla een gegenereerde samenvatting op voor een vergadering.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "meeting_id": {"type": "integer", "description": "Vergadering ID"},
+                    "summary_text": {"type": "string", "description": "De samenvatting"},
+                    "summary_type": {
+                        "type": "string",
+                        "enum": ["kort", "normaal", "lang"],
+                        "default": "normaal"
+                    }
+                },
+                "required": ["meeting_id", "summary_text"]
+            }
+        ),
+        # ==================== Dossier Tools ====================
+        Tool(
+            name="create_dossier",
+            description="Maak een automatisch dossier/tijdlijn voor een onderwerp. "
+            "Verzamelt alle relevante vergaderingen, documenten en transcripties.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "topic": {"type": "string", "description": "Onderwerp (bijv: 'Paleis Soestdijk')"},
+                    "date_from": {"type": "string", "description": "Start datum (YYYY-MM-DD)"},
+                    "include_transcripts": {
+                        "type": "boolean",
+                        "description": "Ook transcripties doorzoeken",
+                        "default": True
+                    }
+                },
+                "required": ["topic"]
+            }
+        ),
+        Tool(
+            name="get_dossier",
+            description="Haal een dossier op met alle tijdlijn items.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "dossier_id": {"type": "integer", "description": "Dossier ID"}
+                },
+                "required": ["dossier_id"]
+            }
+        ),
+        Tool(
+            name="update_dossier",
+            description="Update een bestaand dossier met nieuwe informatie.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "dossier_id": {"type": "integer", "description": "Dossier ID"}
+                },
+                "required": ["dossier_id"]
+            }
+        ),
+        Tool(
+            name="list_dossiers",
+            description="Lijst alle beschikbare dossiers.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": ["active", "archived"],
+                        "description": "Filter op status"
+                    }
+                }
+            }
+        ),
+        Tool(
+            name="get_dossier_timeline",
+            description="Haal een dossier tijdlijn op als markdown tekst.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "dossier_id": {"type": "integer", "description": "Dossier ID"}
+                },
+                "required": ["dossier_id"]
             }
         ),
     ]
@@ -722,7 +1365,15 @@ async def handle_tool(name: str, args: dict) -> Any:
             "date": meeting['date'],
             "location": meeting.get('location'),
             "agenda_items": [{"id": i['id'], "title": i['title']} for i in meeting.get('agenda_items', [])],
-            "documents": [{"id": d['id'], "title": d['title'], "has_content": bool(d.get('text_content'))} for d in meeting.get('documents', [])]
+            "documents": [
+                {
+                    "id": d['id'],
+                    "title": d['title'],
+                    "url": d.get('url') or (f"https://api.notubiz.nl/document/{d['notubiz_id']}/1" if d.get('notubiz_id') else None),
+                    "has_content": bool(d.get('text_content'))
+                }
+                for d in meeting.get('documents', [])
+            ]
         }
 
     elif name == "get_agenda_items":
@@ -834,6 +1485,10 @@ async def handle_tool(name: str, args: dict) -> Any:
             "municipality": Config.MUNICIPALITY_NAME
         }
 
+    elif name == "get_notubiz_status":
+        client = get_notubiz_client()
+        return client.get_auth_status()
+
     elif name == "get_coalitie_akkoord":
         tracker = get_coalitie_tracker()
         summary = tracker.get_akkoord_summary()
@@ -884,6 +1539,601 @@ async def handle_tool(name: str, args: dict) -> Any:
             limit=args.get('limit', 100)
         )
         return result
+
+    elif name == "get_upcoming_meetings":
+        from datetime import datetime, timedelta
+
+        period = args.get('period', 'this_week')
+        include_agenda = args.get('include_agenda', True)
+        include_documents = args.get('include_documents', False)
+
+        today = date.today()
+
+        # Calculate date range based on period
+        if period == 'today':
+            date_from = date_to = today.isoformat()
+            period_label = f"vandaag ({today.strftime('%d-%m-%Y')})"
+        elif period == 'tomorrow':
+            tomorrow = today + timedelta(days=1)
+            date_from = date_to = tomorrow.isoformat()
+            period_label = f"morgen ({tomorrow.strftime('%d-%m-%Y')})"
+        elif period == 'this_week':
+            # Start of week (Monday)
+            start = today - timedelta(days=today.weekday())
+            end = start + timedelta(days=6)
+            date_from = start.isoformat()
+            date_to = end.isoformat()
+            period_label = f"deze week ({start.strftime('%d-%m')} t/m {end.strftime('%d-%m-%Y')})"
+        elif period == 'next_week':
+            start = today - timedelta(days=today.weekday()) + timedelta(weeks=1)
+            end = start + timedelta(days=6)
+            date_from = start.isoformat()
+            date_to = end.isoformat()
+            period_label = f"volgende week ({start.strftime('%d-%m')} t/m {end.strftime('%d-%m-%Y')})"
+        elif period == 'this_month':
+            start = today.replace(day=1)
+            # End of month
+            if today.month == 12:
+                end = today.replace(year=today.year+1, month=1, day=1) - timedelta(days=1)
+            else:
+                end = today.replace(month=today.month+1, day=1) - timedelta(days=1)
+            date_from = start.isoformat()
+            date_to = end.isoformat()
+            period_label = f"deze maand ({today.strftime('%B %Y')})"
+        else:
+            date_from = date_to = today.isoformat()
+            period_label = "vandaag"
+
+        provider = get_meeting_provider()
+        meetings = provider.get_meetings(
+            limit=50,
+            date_from=date_from,
+            date_to=date_to
+        )
+
+        result_meetings = []
+        for m in meetings:
+            meeting_data = {
+                "id": m['id'],
+                "title": m['title'],
+                "date": m['date'],
+                "gremium": m.get('gremium_name'),
+                "location": m.get('location')
+            }
+
+            if include_agenda:
+                items = provider.get_agenda_items(m['id'])
+                meeting_data['agenda_items'] = [
+                    {"id": i['id'], "title": i['title']}
+                    for i in items
+                ]
+
+            if include_documents:
+                full_meeting = provider.get_meeting(meeting_id=m['id'])
+                if full_meeting:
+                    meeting_data['documents'] = [
+                        {
+                            "id": d['id'],
+                            "title": d['title'],
+                            "url": d.get('url') or (f"https://api.notubiz.nl/document/{d['notubiz_id']}/1" if d.get('notubiz_id') else None)
+                        }
+                        for d in full_meeting.get('documents', [])
+                    ]
+
+            result_meetings.append(meeting_data)
+
+        return {
+            "period": period_label,
+            "date_range": {"from": date_from, "to": date_to},
+            "count": len(result_meetings),
+            "meetings": result_meetings
+        }
+
+    # ==================== Media/Broadcast Handlers ====================
+
+    elif name == "get_upcoming_broadcasts":
+        from providers.notubiz_client import get_notubiz_client
+        client = get_notubiz_client()
+        limit = args.get('limit', 10)
+
+        broadcasts = client.get_upcoming_broadcasts(limit=limit)
+
+        result = []
+        for event in broadcasts:
+            result.append({
+                'id': event.get('id'),
+                'title': event.get('title') or event.get('name'),
+                'date': event.get('start_date') or event.get('date'),
+                'gremium': event.get('gremium', {}).get('name') if isinstance(event.get('gremium'), dict) else None,
+                'has_broadcast': True
+            })
+
+        return {
+            "count": len(result),
+            "upcoming_broadcasts": result,
+            "note": "Vergaderingen met geplande live uitzendingen"
+        }
+
+    elif name == "get_meeting_video":
+        from providers.notubiz_client import get_notubiz_client
+        client = get_notubiz_client()
+        provider = get_meeting_provider()
+
+        meeting_id = args.get('meeting_id')
+
+        # Get meeting from database to find Notubiz ID
+        meeting = provider.get_meeting(meeting_id)
+        if not meeting:
+            return {"error": f"Vergadering {meeting_id} niet gevonden"}
+
+        notubiz_id = meeting.get('notubiz_id') or str(meeting_id)
+
+        # Try to get video URL from database first
+        video_url = meeting.get('video_url')
+        if not video_url:
+            # Try to fetch from Notubiz API
+            video_url = client.get_video_url_for_meeting(notubiz_id)
+
+        return {
+            "meeting_id": meeting_id,
+            "title": meeting.get('title'),
+            "date": meeting.get('date'),
+            "video_url": video_url,
+            "has_video": video_url is not None,
+            "note": "Video URL kan direct afgespeeld worden of gebruikt voor transcriptie"
+        }
+
+    elif name == "get_media_info":
+        from providers.notubiz_client import get_notubiz_client
+        client = get_notubiz_client()
+
+        event_ids = args.get('event_ids', [])
+        if not event_ids:
+            return {"error": "Geen event_ids opgegeven"}
+
+        media_list = client.get_media(event_ids)
+
+        return {
+            "count": len(media_list),
+            "media": media_list,
+            "requested_events": len(event_ids)
+        }
+
+    elif name == "get_organization_info":
+        from providers.notubiz_client import get_notubiz_client
+        client = get_notubiz_client()
+
+        include_settings = args.get('include_settings', False)
+
+        org_details = client.get_organization_details()
+        org_id = client.get_organization_id()
+
+        result = {
+            "organization": org_details,
+            "organization_id": org_id,
+            "logo_url": client.get_organization_image_url('organisationLogo', size='200x200'),
+            "header_url": client.get_organization_image_url('dashboardheader', size='2000x320')
+        }
+
+        if include_settings:
+            result["dashboard_settings"] = client.get_dashboard_settings()
+            result["entity_settings"] = client.get_entity_type_settings(entity_types=['events'])
+
+        return result
+
+    # ==================== Verkiezingsprogramma Handlers ====================
+
+    elif name == "list_parties":
+        provider = get_election_program_provider()
+        # Initialize parties if not done yet
+        provider.initialize_parties()
+        parties = provider.get_parties(active_only=args.get('active_only', False))
+        return {
+            "count": len(parties),
+            "parties": [
+                {
+                    "id": p['id'],
+                    "name": p['name'],
+                    "abbreviation": p.get('abbreviation'),
+                    "active": bool(p.get('active')),
+                    "website": p.get('website_url'),
+                    "color": p.get('color')
+                }
+                for p in parties
+            ]
+        }
+
+    elif name == "sync_parties":
+        provider = get_election_program_provider()
+        # Initialize known parties first if requested
+        if args.get('initialize_known', True):
+            provider.initialize_parties()
+        # Check for updates from web
+        result = provider.check_and_update_parties_from_web()
+        return result
+
+    elif name == "get_party_sync_status":
+        provider = get_election_program_provider()
+        return provider.get_party_sync_status()
+
+    elif name == "search_election_programs":
+        provider = get_election_program_provider()
+        results = provider.search_programs(
+            query=args['query'],
+            party=args.get('party'),
+            year_from=args.get('year_from'),
+            year_to=args.get('year_to'),
+            limit=args.get('limit', 20)
+        )
+        return {
+            "query": args['query'],
+            "count": len(results),
+            "results": [
+                {
+                    "program_id": r.get('id'),
+                    "party": r.get('party_name'),
+                    "abbreviation": r.get('abbreviation'),
+                    "year": r.get('election_year'),
+                    "snippet": r.get('snippet', '')[:500]
+                }
+                for r in results
+            ]
+        }
+
+    elif name == "compare_party_positions":
+        provider = get_election_program_provider()
+        result = provider.compare_positions(
+            topic=args['topic'],
+            parties=args.get('parties'),
+            year=args.get('year')
+        )
+        return result
+
+    elif name == "get_party_history":
+        provider = get_election_program_provider()
+        history = provider.get_party_position_history(
+            party=args['party'],
+            topic=args['topic']
+        )
+        return {
+            "party": args['party'],
+            "topic": args['topic'],
+            "positions": history
+        }
+
+    # ==================== Document Generatie Handlers ====================
+
+    elif name == "generate_motie":
+        generator = get_document_generator()
+        result = generator.generate_motie(
+            titel=args['titel'],
+            indieners=args['indieners'],
+            partijen=args['partijen'],
+            constateringen=args['constateringen'],
+            overwegingen=args['overwegingen'],
+            verzoeken=args['verzoeken'],
+            vergadering_datum=args.get('vergadering_datum'),
+            agendapunt=args.get('agendapunt'),
+            toelichting=args.get('toelichting')
+        )
+        return result
+
+    elif name == "generate_amendement":
+        generator = get_document_generator()
+        result = generator.generate_amendement(
+            titel=args['titel'],
+            indieners=args['indieners'],
+            partijen=args['partijen'],
+            raadsvoorstel_nummer=args['raadsvoorstel_nummer'],
+            raadsvoorstel_titel=args['raadsvoorstel_titel'],
+            wijzigingen=args['wijzigingen'],
+            toelichting=args.get('toelichting'),
+            vergadering_datum=args.get('vergadering_datum'),
+            agendapunt=args.get('agendapunt')
+        )
+        return result
+
+    # ==================== Standpunten Handlers ====================
+
+    elif name == "add_standpunt":
+        provider = get_standpunt_provider()
+        result = provider.add_standpunt(
+            party_id=args.get('party_id'),
+            raadslid_id=args.get('raadslid_id'),
+            topic=args['topic'],
+            position_summary=args['position_summary'],
+            position_text=args.get('position_text'),
+            stance=args.get('stance', 'onbekend'),
+            stance_strength=args.get('stance_strength'),
+            source_type=args['source_type'],
+            source_document_id=args.get('source_document_id'),
+            source_meeting_id=args.get('source_meeting_id'),
+            source_quote=args.get('source_quote'),
+            position_date=args.get('position_date'),
+            subtopic=args.get('subtopic'),
+            tags=args.get('tags')
+        )
+        return result
+
+    elif name == "search_standpunten":
+        provider = get_standpunt_provider()
+        results = provider.search_standpunten(
+            query=args.get('query'),
+            party_id=args.get('party_id'),
+            party_name=args.get('party_name'),
+            raadslid_id=args.get('raadslid_id'),
+            topic=args.get('topic'),
+            stance=args.get('stance'),
+            verified_only=args.get('verified_only', False),
+            limit=args.get('limit', 50)
+        )
+        return {
+            "count": len(results),
+            "standpunten": results
+        }
+
+    elif name == "compare_standpunten":
+        provider = get_standpunt_provider()
+        result = provider.compare_standpunten(
+            topic=args['topic'],
+            party_ids=args.get('party_ids'),
+            include_raadsleden=args.get('include_raadsleden', False)
+        )
+        return result
+
+    elif name == "get_standpunt_history":
+        provider = get_standpunt_provider()
+        history = provider.get_standpunt_history(
+            topic=args['topic'],
+            party_id=args.get('party_id'),
+            raadslid_id=args.get('raadslid_id')
+        )
+        return {
+            "topic": args['topic'],
+            "history": history
+        }
+
+    elif name == "get_party_context":
+        provider = get_standpunt_provider()
+        context = provider.get_party_context(
+            party_id=args.get('party_id'),
+            party_name=args.get('party_name'),
+            topics=args.get('topics')
+        )
+        return context
+
+    elif name == "list_raadsleden":
+        provider = get_standpunt_provider()
+        raadsleden = provider.get_raadsleden(
+            party_id=args.get('party_id'),
+            active_only=args.get('active_only', True)
+        )
+        return {
+            "count": len(raadsleden),
+            "raadsleden": raadsleden
+        }
+
+    elif name == "add_raadslid":
+        provider = get_standpunt_provider()
+        result = provider.add_raadslid(
+            name=args['name'],
+            party_id=args.get('party_id'),
+            email=args.get('email'),
+            start_date=args.get('start_date'),
+            is_wethouder=args.get('is_wethouder', False),
+            is_fractievoorzitter=args.get('is_fractievoorzitter', False),
+            is_steunfractielid=args.get('is_steunfractielid', False)
+        )
+        return result
+
+    elif name == "verify_standpunt":
+        provider = get_standpunt_provider()
+        result = provider.verify_standpunt(
+            standpunt_id=args['standpunt_id'],
+            verified=args.get('verified', True)
+        )
+        return result
+
+    elif name == "get_standpunt_topics":
+        provider = get_standpunt_provider()
+        topics = provider.get_topics(parent_id=args.get('parent_id'))
+        return {
+            "count": len(topics),
+            "topics": topics
+        }
+
+    elif name == "add_visit_report":
+        provider = get_visit_report_provider()
+        report_id = provider.add_manual_visit_report(
+            title=args['title'],
+            file_base64=args['file_base64'],
+            filename=args['filename'],
+            mime_type=args['mime_type'],
+            date=args.get('date'),
+            location=args.get('location'),
+            participants=args.get('participants'),
+            organizations=args.get('organizations'),
+            topics=args.get('topics'),
+            visit_type=args.get('visit_type'),
+            summary=args.get('summary'),
+            status=args.get('status'),
+            source_url=args.get('source_url'),
+            attachments=args.get('attachments')
+        )
+        return {"success": True, "visit_report_id": report_id}
+
+    elif name == "import_visit_reports":
+        provider = get_visit_report_provider()
+        created, skipped = provider.import_visit_reports_from_documents(
+            document_ids=args['document_ids'],
+            date=args.get('date'),
+            location=args.get('location'),
+            participants=args.get('participants'),
+            organizations=args.get('organizations'),
+            topics=args.get('topics'),
+            visit_type=args.get('visit_type'),
+            summary=args.get('summary'),
+            status=args.get('status')
+        )
+        return {"created": created, "skipped": skipped}
+
+    elif name == "list_visit_reports":
+        provider = get_visit_report_provider()
+        reports = provider.list_visit_reports(
+            date_from=args.get('date_from'),
+            date_to=args.get('date_to'),
+            status=args.get('status'),
+            visit_type=args.get('visit_type'),
+            limit=args.get('limit', 50),
+            offset=args.get('offset', 0)
+        )
+        return {"count": len(reports), "visit_reports": reports}
+
+    elif name == "get_visit_report":
+        provider = get_visit_report_provider()
+        report = provider.get_visit_report(args['visit_report_id'])
+        return report or {"error": "Visit report not found"}
+
+    elif name == "search_visit_reports":
+        provider = get_visit_report_provider()
+        results = provider.search_visit_reports(args['query'], limit=args.get('limit', 50))
+        return {"query": args['query'], "count": len(results), "results": results}
+
+    elif name == "update_visit_report":
+        provider = get_visit_report_provider()
+        success = provider.update_visit_report(
+            args['visit_report_id'],
+            title=args.get('title'),
+            date=args.get('date'),
+            location=args.get('location'),
+            participants=args.get('participants'),
+            organizations=args.get('organizations'),
+            topics=args.get('topics'),
+            visit_type=args.get('visit_type'),
+            summary=args.get('summary'),
+            status=args.get('status'),
+            source_url=args.get('source_url'),
+            attachments=args.get('attachments')
+        )
+        return {"success": success}
+
+    elif name == "delete_visit_report":
+        provider = get_visit_report_provider()
+        success = provider.delete_visit_report(args['visit_report_id'])
+        return {"success": success}
+
+    elif name == "link_visit_report_to_meeting":
+        provider = get_visit_report_provider()
+        success = provider.link_to_meeting(args['visit_report_id'], args['meeting_id'])
+        return {"success": success}
+
+    elif name == "index_visit_reports":
+        provider = get_visit_report_provider()
+        count = provider.index_visit_reports(args.get('visit_report_ids'))
+        return {"indexed_chunks": count}
+
+    # ==================== Transcriptie Handlers ====================
+
+    elif name == "transcribe_meeting":
+        from providers.transcription_provider import get_transcription_provider
+        provider = get_transcription_provider()
+        return provider.transcribe_meeting(args['meeting_id'])
+
+    elif name == "transcribe_url":
+        from providers.transcription_provider import get_transcription_provider
+        provider = get_transcription_provider()
+        return provider.transcribe_url(
+            args['url'],
+            source_type=args.get('source_type', 'direct')
+        )
+
+    elif name == "search_transcriptions":
+        from providers.transcription_provider import get_transcription_provider
+        provider = get_transcription_provider()
+        results = provider.search_transcriptions(
+            args['query'],
+            limit=args.get('limit', 10)
+        )
+        return {
+            "count": len(results),
+            "results": results
+        }
+
+    elif name == "get_transcription_status":
+        from providers.transcription_provider import get_transcription_provider
+        provider = get_transcription_provider()
+        pending = provider.get_pending_transcriptions_count()
+        return {
+            "pending_transcriptions": pending,
+            "whisper_model": provider.model_size
+        }
+
+    # ==================== Samenvatting Handlers ====================
+
+    elif name == "get_document_for_summary":
+        from providers.summary_provider import get_summary_provider
+        provider = get_summary_provider()
+        return provider.get_document_for_summary(args['document_id'])
+
+    elif name == "save_document_summary":
+        from providers.summary_provider import get_summary_provider
+        provider = get_summary_provider()
+        return provider.save_document_summary(
+            args['document_id'],
+            args['summary_text'],
+            summary_type=args.get('summary_type', 'normaal')
+        )
+
+    elif name == "get_meeting_for_summary":
+        from providers.summary_provider import get_summary_provider
+        provider = get_summary_provider()
+        return provider.get_meeting_for_summary(args['meeting_id'])
+
+    elif name == "save_meeting_summary":
+        from providers.summary_provider import get_summary_provider
+        provider = get_summary_provider()
+        return provider.save_meeting_summary(
+            args['meeting_id'],
+            args['summary_text'],
+            summary_type=args.get('summary_type', 'normaal')
+        )
+
+    # ==================== Dossier Handlers ====================
+
+    elif name == "create_dossier":
+        from providers.dossier_provider import get_dossier_provider
+        provider = get_dossier_provider()
+        return provider.create_dossier(
+            args['topic'],
+            date_from=args.get('date_from'),
+            include_transcripts=args.get('include_transcripts', True)
+        )
+
+    elif name == "get_dossier":
+        from providers.dossier_provider import get_dossier_provider
+        provider = get_dossier_provider()
+        return provider.get_dossier(args['dossier_id'])
+
+    elif name == "update_dossier":
+        from providers.dossier_provider import get_dossier_provider
+        provider = get_dossier_provider()
+        return provider.update_dossier(args['dossier_id'])
+
+    elif name == "list_dossiers":
+        from providers.dossier_provider import get_dossier_provider
+        provider = get_dossier_provider()
+        dossiers = provider.list_dossiers(status=args.get('status'))
+        return {
+            "count": len(dossiers),
+            "dossiers": dossiers
+        }
+
+    elif name == "get_dossier_timeline":
+        from providers.dossier_provider import get_dossier_provider
+        provider = get_dossier_provider()
+        return {
+            "markdown": provider.get_dossier_timeline_markdown(args['dossier_id'])
+        }
 
     else:
         raise ValueError(f"Unknown tool: {name}")

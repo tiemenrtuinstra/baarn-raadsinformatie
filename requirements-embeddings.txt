@@ -1,5 +1,0 @@
-# Extra dependencies voor semantisch zoeken met embeddings
-# Installeer met: pip install -r requirements-embeddings.txt
-
-sentence-transformers>=2.2.0
-torch>=2.0.0

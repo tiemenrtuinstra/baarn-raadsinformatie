@@ -8,6 +8,7 @@ Bevat API clients en data providers voor Notubiz.
 from .notubiz_client import NotubizClient, get_notubiz_client
 from .meeting_provider import MeetingProvider, get_meeting_provider
 from .document_provider import DocumentProvider, get_document_provider
+from .visit_report_provider import VisitReportProvider, get_visit_report_provider
 
 __all__ = [
     'NotubizClient',
@@ -16,4 +17,6 @@ __all__ = [
     'get_meeting_provider',
     'DocumentProvider',
     'get_document_provider',
+    'VisitReportProvider',
+    'get_visit_report_provider',
 ]

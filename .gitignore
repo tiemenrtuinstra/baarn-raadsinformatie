@@ -39,10 +39,13 @@ env/
 .env
 .env.local
 
-# Data directories (lokale cache, niet committen)
+# Data directories (lokale data, niet committen)
 data/documents/
 data/cache/
+data/images/
+data/audio/
 data/*.db
+data/*.backup
 
 # Logs
 logs/
@@ -74,3 +77,8 @@ nul
 # Embeddings cache
 *.npy
 *.npz
+
+# FFmpeg binaries (too large for GitHub, use install script)
+tools/ffmpeg*/bin/
+tools/*.zip
+tools/*.exe

@@ -15,10 +15,35 @@ pydantic>=2.0.0
 
 # PDF Processing
 pdfplumber>=0.9.0
+PyMuPDF>=1.23.0
 
 # Data processing
 numpy>=1.24.0
 
-# Embeddings (optioneel, installeer met: pip install -r requirements-embeddings.txt)
-# sentence-transformers>=2.2.0
-# torch>=2.0.0
+# Document generatie
+python-docx>=0.8.11
+python-pptx>=0.6.23
+openpyxl>=3.1.2
+Pillow>=10.0.0
+
+# Image deduplication (perceptual hashing)
+imagehash>=4.3.0
+
+# OCR (tekst uit afbeeldingen)
+pytesseract>=0.3.10
+
+# Web scraping
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# Embeddings (VERPLICHT voor semantic search)
+sentence-transformers>=2.2.0
+torch>=2.0.0
+
+# Transcriptie (Whisper voor video/audio)
+openai-whisper>=20231117
+yt-dlp>=2024.1.0
+ffmpeg-python>=0.2.0
+
+# CLI progress output
+rich>=13.0.0

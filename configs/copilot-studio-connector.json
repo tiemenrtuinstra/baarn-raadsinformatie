@@ -1,0 +1,446 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Baarn Raadsinformatie",
+    "description": "API connector voor toegang tot politieke documenten en vergaderingen van de gemeente Baarn via Notubiz",
+    "version": "2.3.0",
+    "contact": {
+      "name": "Baarn Raadsinformatie Support",
+      "url": "https://github.com/tiemenrtuinstra/baarn-raadsinformatie"
+    }
+  },
+  "host": "YOUR_API_HOST",
+  "basePath": "/api",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "X-API-Key"
+    }
+  },
+  "security": [{"api_key": []}],
+  "paths": {
+    "/meetings": {
+      "get": {
+        "operationId": "GetMeetings",
+        "summary": "Vergaderingen ophalen",
+        "description": "Haalt een lijst van vergaderingen op met optionele filters",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "default": 10,
+            "description": "Maximum aantal resultaten"
+          },
+          {
+            "name": "gremium_id",
+            "in": "query",
+            "type": "integer",
+            "description": "Filter op commissie ID"
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "type": "string",
+            "format": "date",
+            "description": "Vergaderingen vanaf datum (YYYY-MM-DD)"
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "type": "string",
+            "format": "date",
+            "description": "Vergaderingen tot datum (YYYY-MM-DD)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lijst van vergaderingen",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "meetings": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Meeting"
+                  }
+                },
+                "total": {"type": "integer"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/meetings/upcoming": {
+      "get": {
+        "operationId": "GetUpcomingMeetings",
+        "summary": "Aankomende vergaderingen",
+        "description": "Haalt aankomende vergaderingen op voor een specifieke periode",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "type": "string",
+            "enum": ["today", "tomorrow", "this_week", "next_week", "this_month"],
+            "default": "this_week",
+            "description": "Periode voor vergaderingen"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aankomende vergaderingen",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "period": {"type": "string"},
+                "date_from": {"type": "string"},
+                "date_to": {"type": "string"},
+                "meetings": {
+                  "type": "array",
+                  "items": {"$ref": "#/definitions/Meeting"}
+                },
+                "count": {"type": "integer"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/meetings/{meeting_id}": {
+      "get": {
+        "operationId": "GetMeetingDetails",
+        "summary": "Vergadering details",
+        "description": "Haalt gedetailleerde informatie van een specifieke vergadering op",
+        "parameters": [
+          {
+            "name": "meeting_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID van de vergadering"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vergadering details",
+            "schema": {"$ref": "#/definitions/MeetingDetails"}
+          }
+        }
+      }
+    },
+    "/documents/search": {
+      "get": {
+        "operationId": "SearchDocuments",
+        "summary": "Zoek documenten",
+        "description": "Doorzoekt politieke documenten op keywords",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Zoekterm"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "default": 10,
+            "description": "Maximum aantal resultaten"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zoekresultaten",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {"$ref": "#/definitions/SearchResult"}
+                },
+                "total": {"type": "integer"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/documents/semantic-search": {
+      "get": {
+        "operationId": "SemanticSearch",
+        "summary": "Semantisch zoeken",
+        "description": "AI-gebaseerd zoeken op betekenis in documenten",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Zoekvraag in natuurlijke taal"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "default": 10,
+            "description": "Maximum aantal resultaten"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Semantische zoekresultaten",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {"$ref": "#/definitions/SemanticResult"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/documents/{document_id}": {
+      "get": {
+        "operationId": "GetDocument",
+        "summary": "Document ophalen",
+        "description": "Haalt een specifiek document op met inhoud",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID van het document"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document details",
+            "schema": {"$ref": "#/definitions/Document"}
+          }
+        }
+      }
+    },
+    "/gremia": {
+      "get": {
+        "operationId": "GetGremi",
+        "summary": "Commissies ophalen",
+        "description": "Haalt alle commissies en gremia op",
+        "responses": {
+          "200": {
+            "description": "Lijst van commissies",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "gremia": {
+                  "type": "array",
+                  "items": {"$ref": "#/definitions/Gremium"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/coalitie": {
+      "get": {
+        "operationId": "GetCoalitieAkkoord",
+        "summary": "Coalitieakkoord",
+        "description": "Haalt coalitieakkoord informatie en voortgang op",
+        "parameters": [
+          {
+            "name": "thema",
+            "in": "query",
+            "type": "string",
+            "description": "Filter op thema"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coalitieakkoord data",
+            "schema": {"$ref": "#/definitions/CoalitieAkkoord"}
+          }
+        }
+      }
+    },
+    "/statistics": {
+      "get": {
+        "operationId": "GetStatistics",
+        "summary": "Database statistieken",
+        "description": "Haalt statistieken over de database op",
+        "responses": {
+          "200": {
+            "description": "Statistieken",
+            "schema": {"$ref": "#/definitions/Statistics"}
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Meeting": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "integer"},
+        "title": {"type": "string"},
+        "date": {"type": "string", "format": "date"},
+        "time": {"type": "string"},
+        "location": {"type": "string"},
+        "gremium": {"type": "string"},
+        "status": {"type": "string"}
+      }
+    },
+    "MeetingDetails": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "integer"},
+        "title": {"type": "string"},
+        "date": {"type": "string"},
+        "gremium": {"type": "string"},
+        "agenda_items": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/AgendaItem"}
+        },
+        "documents": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/DocumentRef"}
+        }
+      }
+    },
+    "AgendaItem": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "integer"},
+        "number": {"type": "string"},
+        "title": {"type": "string"},
+        "description": {"type": "string"}
+      }
+    },
+    "DocumentRef": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "integer"},
+        "title": {"type": "string"},
+        "url": {"type": "string"}
+      }
+    },
+    "Document": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "integer"},
+        "title": {"type": "string"},
+        "url": {"type": "string"},
+        "notubiz_url": {"type": "string"},
+        "has_text": {"type": "boolean"},
+        "text_content": {"type": "string"},
+        "truncated": {"type": "boolean"}
+      }
+    },
+    "SearchResult": {
+      "type": "object",
+      "properties": {
+        "document_id": {"type": "integer"},
+        "title": {"type": "string"},
+        "url": {"type": "string"},
+        "snippet": {"type": "string"},
+        "relevance": {"type": "number"}
+      }
+    },
+    "SemanticResult": {
+      "type": "object",
+      "properties": {
+        "document_id": {"type": "integer"},
+        "title": {"type": "string"},
+        "similarity": {"type": "number"},
+        "snippet": {"type": "string"}
+      }
+    },
+    "Gremium": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "integer"},
+        "name": {"type": "string"},
+        "type": {"type": "string"}
+      }
+    },
+    "CoalitieAkkoord": {
+      "type": "object",
+      "properties": {
+        "titel": {"type": "string"},
+        "periode": {"type": "string"},
+        "partijen": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "themas": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Thema"}
+        },
+        "voortgang": {"$ref": "#/definitions/Voortgang"}
+      }
+    },
+    "Thema": {
+      "type": "object",
+      "properties": {
+        "naam": {"type": "string"},
+        "afspraken": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Afspraak"}
+        }
+      }
+    },
+    "Afspraak": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "string"},
+        "tekst": {"type": "string"},
+        "status": {"type": "string"},
+        "toelichting": {"type": "string"}
+      }
+    },
+    "Voortgang": {
+      "type": "object",
+      "properties": {
+        "totaal": {"type": "integer"},
+        "gerealiseerd": {"type": "integer"},
+        "in_uitvoering": {"type": "integer"},
+        "gepland": {"type": "integer"},
+        "percentage_gerealiseerd": {"type": "number"}
+      }
+    },
+    "Statistics": {
+      "type": "object",
+      "properties": {
+        "meetings": {"type": "integer"},
+        "documents": {"type": "integer"},
+        "agenda_items": {"type": "integer"},
+        "gremia": {"type": "integer"},
+        "annotations": {"type": "integer"},
+        "indexed_documents": {"type": "integer"}
+      }
+    }
+  },
+  "x-ms-connector-metadata": [
+    {
+      "propertyName": "Website",
+      "propertyValue": "https://baarn.notubiz.nl"
+    },
+    {
+      "propertyName": "Privacy policy",
+      "propertyValue": "https://www.baarn.nl/privacy"
+    },
+    {
+      "propertyName": "Categories",
+      "propertyValue": "Data;Content and Files"
+    }
+  ]
+}

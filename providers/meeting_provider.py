@@ -6,11 +6,12 @@ Synchroniseert vergaderingen van Notubiz naar de lokale database.
 """
 
 from datetime import datetime, date, timedelta
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Callable
 
 from core.config import Config
 from core.database import Database, get_database
 from shared.logging_config import get_logger, LogContext
+from shared.cli_progress import progress_context, is_interactive
 from .notubiz_client import NotubizClient, get_notubiz_client
 
 logger = get_logger('meeting-provider')
@@ -61,7 +62,9 @@ class MeetingProvider:
         date_from: str = None,
         date_to: str = None,
         gremium_id: str = None,
-        full_details: bool = True
+        full_details: bool = True,
+        use_auth: bool = None,
+        stop_callback: Callable[[], bool] = None
     ) -> Tuple[int, int]:
         """
         Synchroniseer vergaderingen van Notubiz naar database.
@@ -71,6 +74,8 @@ class MeetingProvider:
             date_to: Eind datum (YYYY-MM-DD), default: vandaag
             gremium_id: Filter op specifiek gremium
             full_details: Haal ook agenda items en documenten op
+            use_auth: Gebruik auth token indien beschikbaar (auto-detect)
+            stop_callback: Optional callback that returns True if sync should stop
 
         Returns:
             Tuple of (meetings_synced, documents_found)
@@ -81,29 +86,57 @@ class MeetingProvider:
         if not date_to:
             date_to = date.today().isoformat()
 
+        # Auto-detect auth mode for historical requests
+        if use_auth is None:
+            use_auth = self.client.has_auth_token()
+
         with LogContext(logger, 'sync_meetings', date_from=date_from, date_to=date_to):
-            # Get all events
-            events = self.client.get_all_events(
-                date_from=date_from,
-                date_to=date_to,
-                gremium_id=gremium_id
-            )
+            # Use authenticated endpoint for historical data if available
+            if use_auth and self.client.has_auth_token():
+                logger.info('Using authenticated access for historical data')
+                events = self.client.get_all_historical_events(
+                    date_from=date_from,
+                    date_to=date_to,
+                    gremium_id=gremium_id
+                )
+            else:
+                events = self.client.get_all_events(
+                    date_from=date_from,
+                    date_to=date_to,
+                    gremium_id=gremium_id
+                )
+
+            # Convert to list for progress tracking
+            events_list = list(events) if not isinstance(events, list) else events
+            total_events = len(events_list)
 
             meetings_count = 0
             documents_count = 0
 
-            for event in events:
-                # Store basic meeting info
-                meeting_db_id = self._store_meeting(event)
-                meetings_count += 1
+            with progress_context("Vergaderingen verwerken", total=total_events) as tracker:
+                for event in events_list:
+                    # Check for stop request
+                    if stop_callback and stop_callback():
+                        logger.info('Stop requested during meeting sync')
+                        break
 
-                # Fetch and store details
-                if full_details and meeting_db_id:
-                    # Extract ID from @attributes or directly
+                    # Get meeting title for progress display
                     attrs = event.get('@attributes', {})
-                    notubiz_id = str(attrs.get('id') or event.get('id'))
-                    docs = self._sync_meeting_details(notubiz_id, meeting_db_id)
-                    documents_count += docs
+                    title = event.get('title') or attrs.get('title') or 'Vergadering'
+                    tracker.update_description(title[:60])
+
+                    # Store basic meeting info
+                    meeting_db_id = self._store_meeting(event)
+                    meetings_count += 1
+
+                    # Fetch and store details
+                    if full_details and meeting_db_id:
+                        # Extract ID from @attributes or directly
+                        notubiz_id = str(attrs.get('id') or event.get('id'))
+                        docs = self._sync_meeting_details(notubiz_id, meeting_db_id)
+                        documents_count += docs
+
+                    tracker.advance()
 
             # Update sync status
             self.db.update_sync_status(
@@ -111,7 +144,7 @@ class MeetingProvider:
                 date_from=date_from,
                 date_to=date_to,
                 items_synced=meetings_count,
-                status='completed'
+                status='completed' if not (stop_callback and stop_callback()) else 'interrupted'
             )
 
             logger.info(f'Synced {meetings_count} meetings, {documents_count} documents')
@@ -124,50 +157,98 @@ class MeetingProvider:
             attrs = event.get('@attributes', {})
             notubiz_id = str(attrs.get('id') or event.get('id'))
 
-            # Parse date and time from nested structure
-            # Structure: start_dates.start_date.@attributes.{date, time}
+            # Parse date and time - support multiple API formats
             event_date = ''
             start_time = None
-            start_dates = event.get('start_dates', {})
-            if start_dates:
-                start_date_data = start_dates.get('start_date', {})
-                if isinstance(start_date_data, dict):
-                    date_attrs = start_date_data.get('@attributes', {})
-                    event_date = date_attrs.get('date', '')
-                    start_time = date_attrs.get('time')
-            # Fallback to direct fields
+
+            # Format 1: plannings array (newer API format)
+            plannings = event.get('plannings', [])
+            if plannings and isinstance(plannings, list) and len(plannings) > 0:
+                planning = plannings[0]
+                start_datetime = planning.get('start_date', '')
+                if start_datetime:
+                    # Format: "2026-01-28 20:00:00"
+                    parts = start_datetime.split(' ')
+                    event_date = parts[0] if parts else ''
+                    start_time = parts[1] if len(parts) > 1 else None
+                end_datetime = planning.get('end_date')
+                if end_datetime:
+                    end_parts = end_datetime.split(' ')
+                    end_time = end_parts[1] if len(end_parts) > 1 else None
+                else:
+                    end_time = None
+
+            # Format 2: start_dates nested structure (older API format)
+            if not event_date:
+                start_dates = event.get('start_dates', {})
+                if start_dates:
+                    start_date_data = start_dates.get('start_date', {})
+                    if isinstance(start_date_data, dict):
+                        date_attrs = start_date_data.get('@attributes', {})
+                        event_date = date_attrs.get('date', '')
+                        start_time = date_attrs.get('time')
+
+            # Format 3: direct fields
             if not event_date:
                 event_date = event.get('date', event.get('start_date', ''))
             if not start_time:
                 start_time = event.get('start_time')
-            end_time = event.get('end_time')
+            if 'end_time' not in dir() or end_time is None:
+                end_time = event.get('end_time')
 
-            # Get gremium ID from database - try category_id from attributes
+            # Get gremium ID from database - support multiple formats
             gremium_id = None
-            category_id = attrs.get('category_id')
-            if category_id:
-                gremia = self.db.get_gremia()
-                for g in gremia:
-                    if g['notubiz_id'] == str(category_id):
-                        gremium_id = g['id']
+            gremia = self.db.get_gremia()
+
+            # Format 1: gremium object with id (newer format)
+            if 'gremium' in event:
+                gremium_data = event['gremium']
+                gremium_notubiz_id = str(gremium_data.get('id', ''))
+                if gremium_notubiz_id:
+                    for g in gremia:
+                        if g['notubiz_id'] == gremium_notubiz_id:
+                            gremium_id = g['id']
+                            break
+
+            # Format 2: category_id from @attributes (older format)
+            if not gremium_id:
+                category_id = attrs.get('category_id')
+                if category_id:
+                    for g in gremia:
+                        if g['notubiz_id'] == str(category_id):
+                            gremium_id = g['id']
+                            break
+
+            # Extract title - support multiple formats
+            title = event.get('title') or event.get('name')
+            if not title:
+                # New format: title in attributes array (id=1 is usually title)
+                attributes = event.get('attributes', [])
+                for attr in attributes:
+                    if attr.get('id') == 1:
+                        title = attr.get('value')
                         break
-            # Fallback: check gremium field
-            if not gremium_id and 'gremium' in event:
-                gremium = event['gremium']
-                gremia = self.db.get_gremia() if 'gremia' not in dir() else gremia
-                for g in gremia:
-                    if g['notubiz_id'] == str(gremium.get('id')):
-                        gremium_id = g['id']
+            if not title:
+                title = 'Unnamed meeting'
+
+            # Extract location - support multiple formats
+            location = event.get('location')
+            if not location:
+                attributes = event.get('attributes', [])
+                for attr in attributes:
+                    # id=50 is typically location in Notubiz
+                    if attr.get('id') == 50:
+                        location = attr.get('value')
                         break
 
             return self.db.upsert_meeting(
                 notubiz_id=notubiz_id,
-                title=event.get('title', event.get('name', 'Unnamed meeting')),
+                title=title,
                 date=event_date,
                 gremium_id=gremium_id,
                 start_time=start_time,
                 end_time=end_time,
-                location=event.get('location'),
+                location=location,
                 status=event.get('status'),
                 description=event.get('description'),
                 video_url=event.get('video_url'),

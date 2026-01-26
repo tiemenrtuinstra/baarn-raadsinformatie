@@ -1,7 +1,10 @@
 services:
   # REST API Server - voor ChatGPT Actions en andere integraties
   api-server:
-    build: .
+    build:
+      context: .
+      args:
+        INSTALL_EMBEDDINGS: "true"
     image: baarn-raadsinformatie:latest
     container_name: baarn-raadsinformatie-api
     restart: unless-stopped
@@ -10,11 +13,12 @@ services:
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
+    env_file:
+      - .env
     environment:
-      - LOG_LEVEL=INFO
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - AUTO_SYNC_ENABLED=false
-      - NOTUBIZ_API_URL=https://api.notubiz.nl
-      - NOTUBIZ_API_TOKEN=11ef5846eaf0242ec4e0bea441379d699a77f703d
+      - EMBEDDINGS_ENABLED=${EMBEDDINGS_ENABLED:-true}
       - API_KEY=${API_KEY:-baarn-api-key-change-me}
     command: ["python", "api_server.py"]
     healthcheck:
@@ -27,40 +31,48 @@ services:
   # MCP Server - wordt gestart door Claude Desktop via docker run
   # Deze service is voor handmatig testen, niet voor productie
   mcp-server:
-    build: .
+    build:
+      context: .
+      args:
+        INSTALL_EMBEDDINGS: "true"
     image: baarn-raadsinformatie:latest
     container_name: baarn-raadsinformatie-mcp
     stdin_open: true
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
+    env_file:
+      - .env
     environment:
-      - LOG_LEVEL=INFO
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - AUTO_SYNC_ENABLED=false
-      - NOTUBIZ_API_URL=https://api.notubiz.nl
-      - NOTUBIZ_API_TOKEN=11ef5846eaf0242ec4e0bea441379d699a77f703d
+      - EMBEDDINGS_ENABLED=${EMBEDDINGS_ENABLED:-true}
     command: ["python", "mcp_server.py"]
     profiles:
       - mcp  # Alleen starten met: docker compose --profile mcp up mcp-server
 
   # Background sync service - houdt data up-to-date
   sync-service:
-    build: .
+    build:
+      context: .
+      args:
+        INSTALL_EMBEDDINGS: "true"
     image: baarn-raadsinformatie:latest
     container_name: baarn-raadsinformatie-sync
     restart: unless-stopped
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
+    env_file:
+      - .env
     environment:
-      - LOG_LEVEL=INFO
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - AUTO_SYNC_ENABLED=true
-      - AUTO_SYNC_DAYS=365
-      - AUTO_DOWNLOAD_DOCS=true
-      - AUTO_INDEX_DOCS=false
-      - KEEP_PDF_FILES=false
-      - NOTUBIZ_API_URL=https://api.notubiz.nl
-      - NOTUBIZ_API_TOKEN=11ef5846eaf0242ec4e0bea441379d699a77f703d
+      - AUTO_SYNC_DAYS=${AUTO_SYNC_DAYS:-365}
+      - AUTO_DOWNLOAD_DOCS=${AUTO_DOWNLOAD_DOCS:-true}
+      - AUTO_INDEX_DOCS=${AUTO_INDEX_DOCS:-false}
+      - KEEP_PDF_FILES=${KEEP_PDF_FILES:-false}
+      - EMBEDDINGS_ENABLED=${EMBEDDINGS_ENABLED:-true}
       # Full history sync - haalt ALLE data op vanaf 2010
       # Zet op true voor zoeken in historische dossiers (Paleis Soestdijk, etc)
       - FULL_HISTORY_SYNC=${FULL_HISTORY_SYNC:-false}
@@ -72,6 +84,32 @@ services:
       timeout: 30s
       retries: 3
       start_period: 2m
+
+  # ==================== Lichtgewicht variant (zonder embeddings) ====================
+  # Gebruik: docker compose --profile light up api-server-light
+  api-server-light:
+    build:
+      context: .
+      args:
+        INSTALL_EMBEDDINGS: "false"
+    image: baarn-raadsinformatie:light
+    container_name: baarn-raadsinformatie-api-light
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    env_file:
+      - .env
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - AUTO_SYNC_ENABLED=false
+      - EMBEDDINGS_ENABLED=false
+      - API_KEY=${API_KEY:-baarn-api-key-change-me}
+    command: ["python", "api_server.py"]
+    profiles:
+      - light
 
 volumes:
   data:

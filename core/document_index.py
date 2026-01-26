@@ -8,29 +8,29 @@ Semantisch zoeken met embeddings (sentence-transformers).
 import json
 import numpy as np
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Callable
 from dataclasses import dataclass
 
 from .config import Config
 from .database import Database, get_database
 from shared.logging_config import get_logger, LogContext
+from shared.cli_progress import progress_context, is_interactive
 
 logger = get_logger('document-index')
 
-# Embeddings support
-EMBEDDINGS_AVAILABLE = False
+# Embeddings support (optional)
 model = None
+EMBEDDINGS_AVAILABLE = False
 
-if Config.EMBEDDINGS_ENABLED:
-    try:
-        from sentence_transformers import SentenceTransformer
-        EMBEDDINGS_AVAILABLE = True
-        logger.info('Sentence transformers available')
-    except ImportError:
-        logger.warning(
-            'sentence-transformers not installed. '
-            'Install with: pip install sentence-transformers torch'
-        )
+try:
+    from sentence_transformers import SentenceTransformer
+    EMBEDDINGS_AVAILABLE = True
+    logger.info('Sentence transformers available - semantic search enabled')
+except ImportError:
+    logger.warning(
+        'sentence-transformers not installed - semantic search disabled. '
+        'Install with: pip install sentence-transformers torch'
+    )
 
 
 @dataclass
@@ -127,7 +127,7 @@ class DocumentIndex:
 
     def index_document(self, document_id: int) -> int:
         """
-        Index a document's text content.
+        Index a document's text content including OCR text from images.
 
         Args:
             document_id: Database ID of document
@@ -135,16 +135,26 @@ class DocumentIndex:
         Returns:
             Number of chunks indexed
         """
-        if not EMBEDDINGS_AVAILABLE:
-            logger.warning('Embeddings not available - skipping indexing')
-            return 0
-
         doc = self.db.get_document(document_id)
         if not doc:
             logger.warning(f'Document not found: {document_id}')
             return 0
 
-        text = doc.get('text_content')
+        # Collect all text: document text + OCR text from images
+        text_parts = []
+
+        # Main document text
+        if doc.get('text_content'):
+            text_parts.append(doc['text_content'])
+
+        # OCR text from images
+        images = self.db.get_document_images(document_id)
+        for img in images:
+            ocr_text = img.get('ocr_text')
+            if ocr_text and ocr_text.strip():
+                text_parts.append(f"[Afbeelding {img['image_index'] + 1}]: {ocr_text}")
+
+        text = '\n\n'.join(text_parts)
         if not text:
             logger.debug(f'No text content for document {document_id}')
             return 0
@@ -193,20 +203,21 @@ class DocumentIndex:
                 self.model_name
             ))
 
-    def index_all_documents(self, reindex: bool = False) -> Tuple[int, int]:
+    def index_all_documents(
+        self,
+        reindex: bool = False,
+        stop_callback: Callable[[], bool] = None
+    ) -> Tuple[int, int]:
         """
         Index all documents with text content.
 
         Args:
             reindex: Re-index documents that already have embeddings
+            stop_callback: Optional callback that returns True if indexing should stop
 
         Returns:
             Tuple of (documents_indexed, chunks_created)
         """
-        if not EMBEDDINGS_AVAILABLE:
-            logger.warning('Embeddings not available')
-            return 0, 0
-
         # Get documents with text content
         docs = self.db.get_documents(limit=10000)
         docs_with_text = [d for d in docs if d.get('text_content')]
@@ -220,11 +231,23 @@ class DocumentIndex:
             total_docs = 0
             total_chunks = 0
 
-            for doc in docs_with_text:
-                chunks = self.index_document(doc['id'])
-                if chunks > 0:
-                    total_docs += 1
-                    total_chunks += chunks
+            with progress_context("Indexeren...", total=len(docs_with_text)) as tracker:
+                for doc in docs_with_text:
+                    # Check for stop request
+                    if stop_callback and stop_callback():
+                        logger.info('Stop requested during indexing')
+                        break
+
+                    # Update progress with document title
+                    doc_title = doc.get('title', f"Document {doc['id']}")
+                    tracker.update_description(doc_title[:80])
+
+                    chunks = self.index_document(doc['id'])
+                    if chunks > 0:
+                        total_docs += 1
+                        total_chunks += chunks
+
+                    tracker.advance()
 
             logger.info(f'Indexed {total_docs} documents, {total_chunks} chunks')
             return total_docs, total_chunks
@@ -247,10 +270,6 @@ class DocumentIndex:
         Returns:
             List of SearchResult ordered by similarity
         """
-        if not EMBEDDINGS_AVAILABLE:
-            logger.warning('Embeddings not available - semantic search disabled')
-            return []
-
         with LogContext(logger, 'semantic_search', query=query[:50]):
             # Get query embedding
             query_embedding = self._get_embedding(query)

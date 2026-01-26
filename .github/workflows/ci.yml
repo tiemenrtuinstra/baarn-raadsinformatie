@@ -113,6 +113,9 @@ jobs:
       NOTUBIZ_API_URL: ${{ vars.NOTUBIZ_API_URL }}
       NOTUBIZ_API_TOKEN: ${{ secrets.NOTUBIZ_API_TOKEN }}
       NOTUBIZ_API_VERSION: ${{ vars.NOTUBIZ_API_VERSION }}
+      NOTUBIZ_ORGANISATION_ID: ${{ vars.NOTUBIZ_ORGANISATION_ID }}
+      FORCE_ORCHESTRATOR: ${{ vars.FORCE_ORCHESTRATOR }}
+      ORCHESTRATOR_AGENT_NAME: ${{ vars.ORCHESTRATOR_AGENT_NAME }}
     steps:
       - uses: actions/checkout@v4
 
@@ -133,6 +136,9 @@ jobs:
           NOTUBIZ_API_URL=${{ vars.NOTUBIZ_API_URL }}
           NOTUBIZ_API_TOKEN=${{ secrets.NOTUBIZ_API_TOKEN }}
           NOTUBIZ_API_VERSION=${{ vars.NOTUBIZ_API_VERSION }}
+          NOTUBIZ_ORGANISATION_ID=${{ vars.NOTUBIZ_ORGANISATION_ID }}
+          FORCE_ORCHESTRATOR=${{ vars.FORCE_ORCHESTRATOR }}
+          ORCHESTRATOR_AGENT_NAME=${{ vars.ORCHESTRATOR_AGENT_NAME }}
           LOG_LEVEL=DEBUG
           DB_PATH=data/baarn.db
           DOCUMENTS_PATH=data/documents
@@ -154,6 +160,10 @@ jobs:
           events = client.get_events()
           print(f'Found {len(events.get(\"events\", []))} events')
           "
+
+      - name: Verify README logo matches Notubiz
+        run: |
+          python scripts/check_readme_logo.py
 
       - name: Test sync functionality
         run: |

@@ -25,6 +25,7 @@ from core.database import get_database
 from core.document_index import get_document_index
 from providers.meeting_provider import get_meeting_provider
 from providers.document_provider import get_document_provider
+from providers.notubiz_client import get_notubiz_client
 from shared.logging_config import get_logger
 
 logger = get_logger('full-history-sync')
@@ -45,8 +46,10 @@ def full_history_sync(
     """
     meeting_provider = get_meeting_provider()
     doc_provider = get_document_provider()
+    client = get_notubiz_client()
 
     end_date = date.today().isoformat()
+    has_auth = client.has_auth_token()
 
     print("=" * 60)
     print("FULL HISTORY SYNC")
@@ -54,6 +57,12 @@ def full_history_sync(
     print(f"Date range: {start_date} to {end_date}")
     print(f"Download documents: {download_docs}")
     print(f"Index documents: {index_docs}")
+    print(f"Auth token: {'Available' if has_auth else 'NOT SET'}")
+    if not has_auth:
+        print("")
+        print("WARNING: No NOTUBIZ_AUTH_TOKEN configured!")
+        print("Historical data access may be limited to upcoming meetings.")
+        print("Set NOTUBIZ_AUTH_TOKEN in .env for full historical access.")
     print("=" * 60)
     print()
 

@@ -1,213 +1,2272 @@
-# Coalitieakkoord Gemeente Baarn
-# Dit bestand bevat de afspraken uit het coalitieakkoord gestructureerd
-# zodat de coalitie-monitor agent de voortgang kan tracken.
-#
-# INSTRUCTIES:
-# 1. Vul de afspraken in uit het echte coalitieakkoord van Baarn
-# 2. De coalitie-monitor zoekt automatisch besluiten die hieraan raken
-# 3. Status kan handmatig of automatisch worden bijgewerkt
-#
-# STATUS OPTIES:
-# - niet_gestart: Nog geen actie ondernomen
-# - in_voorbereiding: Beleid wordt voorbereid
-# - in_uitvoering: Actief mee bezig
-# - gerealiseerd: Afspraak volledig uitgevoerd
-# - gewijzigd: Afspraak aangepast/bijgesteld
-# - vervallen: Afspraak niet meer actueel
-
 meta:
+  document_id: 92
+  document_title: Coalitieakkoord 2022-2026 - Samen Baarn
+  document_url: https://cuatro.sim-cdn.nl/baarn/uploads/coalitieakkoord_2022_-_2026_-_samen_baarn.pdf?cb=3-fMBGHS
   gemeente: Baarn
-  periode: 2022-2026  # Pas aan naar actuele coalitieperiode
   partijen:
-    - VVD
-    - D66
-    - CDA
-    # Pas aan naar actuele coalitiepartijen
-  vastgesteld: "2022-06-01"  # Datum vaststelling
-  document_id: null  # Notubiz document ID indien bekend
-
-# Zoektermen voor het vinden van het coalitieakkoord in Notubiz
-zoektermen:
-  - coalitieakkoord
-  - collegeakkoord
-  - collegeprogramma
-  - "akkoord 2022"
-
-# =============================================================================
-# AFSPRAKEN PER THEMA
-# Vul hieronder de afspraken in uit het echte coalitieakkoord
-# =============================================================================
-
-themas:
-  # ---------------------------------------------------------------------------
-  wonen:
-    naam: "Wonen & Woningbouw"
-    afspraken:
-      - id: wonen-001
-        tekst: "Realiseren van X nieuwe woningen in de coalitieperiode"
-        toelichting: "Focus op betaalbare woningen voor starters en senioren"
-        status: in_uitvoering
-        prioriteit: hoog
-        zoektermen:
-          - woningbouw
-          - nieuwbouw
-          - woningen
-          - bouwplannen
-        gerelateerde_besluiten: []
-        # Voeg hier meeting_ids toe van relevante besluiten
-
-      - id: wonen-002
-        tekst: "Behoud sociale huurwoningen"
-        status: in_uitvoering
-        prioriteit: hoog
-        zoektermen:
-          - sociale huur
-          - corporatie
-          - huurwoningen
-        gerelateerde_besluiten: []
-
-  # ---------------------------------------------------------------------------
-  duurzaamheid:
-    naam: "Duurzaamheid & Klimaat"
-    afspraken:
-      - id: duurzaam-001
-        tekst: "Gemeente Baarn klimaatneutraal in 20XX"
-        status: in_uitvoering
-        prioriteit: hoog
-        zoektermen:
-          - klimaat
-          - energietransitie
-          - CO2
-          - duurzaamheid
-        gerelateerde_besluiten: []
-
-      - id: duurzaam-002
-        tekst: "Uitbreiding laadpalen elektrisch rijden"
-        status: in_voorbereiding
-        prioriteit: middel
-        zoektermen:
-          - laadpalen
-          - elektrisch rijden
-          - EV
-        gerelateerde_besluiten: []
-
-  # ---------------------------------------------------------------------------
-  mobiliteit:
-    naam: "Mobiliteit & Verkeer"
-    afspraken:
-      - id: mobiliteit-001
-        tekst: "Verbetering verkeersveiligheid in woonwijken"
-        status: in_uitvoering
-        prioriteit: middel
-        zoektermen:
-          - verkeersveiligheid
-          - 30 km
-          - verkeersmaatregelen
-        gerelateerde_besluiten: []
-
-      - id: mobiliteit-002
-        tekst: "Stimuleren fietsgebruik"
-        status: in_uitvoering
-        prioriteit: middel
-        zoektermen:
-          - fiets
-          - fietspad
-          - fietsparkeren
-        gerelateerde_besluiten: []
-
-  # ---------------------------------------------------------------------------
-  sociaal_domein:
-    naam: "Sociaal Domein"
-    afspraken:
-      - id: sociaal-001
-        tekst: "Toegankelijke zorg voor alle inwoners"
-        status: in_uitvoering
-        prioriteit: hoog
-        zoektermen:
-          - Wmo
-          - zorg
-          - ondersteuning
-        gerelateerde_besluiten: []
-
-      - id: sociaal-002
-        tekst: "Aanpak wachtlijsten jeugdzorg"
-        status: in_uitvoering
-        prioriteit: hoog
-        zoektermen:
-          - jeugdzorg
-          - jeugdhulp
-          - wachtlijst
-        gerelateerde_besluiten: []
-
-  # ---------------------------------------------------------------------------
-  economie:
-    naam: "Economie & Centrum"
-    afspraken:
-      - id: economie-001
-        tekst: "Versterking winkelcentrum"
-        status: in_voorbereiding
-        prioriteit: middel
-        zoektermen:
-          - centrum
-          - winkel
-          - ondernemers
-          - retail
-        gerelateerde_besluiten: []
-
-  # ---------------------------------------------------------------------------
-  veiligheid:
-    naam: "Veiligheid"
-    afspraken:
-      - id: veilig-001
-        tekst: "Intensivering handhaving"
-        status: in_uitvoering
-        prioriteit: middel
-        zoektermen:
-          - handhaving
-          - BOA
-          - veiligheid
-        gerelateerde_besluiten: []
-
-  # ---------------------------------------------------------------------------
-  financien:
-    naam: "Financiën"
-    afspraken:
-      - id: financien-001
-        tekst: "Solide financieel beleid"
-        status: in_uitvoering
-        prioriteit: hoog
-        zoektermen:
-          - begroting
-          - financiën
-          - OZB
-        gerelateerde_besluiten: []
-
-  # ---------------------------------------------------------------------------
-  bestuur:
-    naam: "Bestuur & Participatie"
-    afspraken:
-      - id: bestuur-001
-        tekst: "Verbeteren burgerparticipatie"
-        status: in_voorbereiding
-        prioriteit: middel
-        zoektermen:
-          - participatie
-          - inspraak
-          - burgers
-        gerelateerde_besluiten: []
-
-# =============================================================================
-# RAPPORTAGE
-# Wordt automatisch bijgewerkt door coalitie-monitor
-# =============================================================================
-
+  - VoorBaarn
+  - GroenLinks
+  - PvdA
+  - D66
+  periode: 2022-2026
+  vastgesteld: '2022-06-13'
+  vastgesteld_vergadering_datum: '2022-06-21'
+  vastgesteld_vergadering_db_id: 11
+  vastgesteld_vergadering_notubiz_id: '995167'
+  vastgesteld_vergadering_titel: Bijzondere raadsvergadering
+  vastgesteld_vergadering_url: https://baarn.notubiz.nl/vergadering/995167
 rapportage:
-  laatste_update: null
-  totaal_afspraken: 0
+  laatste_update: '2026-01-21T22:13:59.688506'
   per_status:
-    niet_gestart: 0
-    in_voorbereiding: 0
-    in_uitvoering: 0
     gerealiseerd: 0
     gewijzigd: 0
+    in_uitvoering: 0
+    in_voorbereiding: 5
+    niet_gestart: 180
     vervallen: 0
+  totaal_afspraken: 185
+themas:
+  bestuurlijke_vernieuwing:
+    afspraken:
+    - gerelateerde_besluiten:
+      - 495
+      - 399
+      - 397
+      - 396
+      - 356
+      - 283
+      - 233
+      - 230
+      - 225
+      - 222
+      - 211
+      - 160
+      - 62
+      - 36
+      id: bestuurlijke_vernieuwing-001
+      status: in_voorbereiding
+      tekst: Inwoners moeten zich uitgenodigd voelen om mee te doen aan het democratisch
+        proces. We willen daarmee het vertrouwen in de lokale overheid vergroten en
+        de afstand tussen inwoners en gemeentebestuur verkleinen. We vertellen waar
+        we mee bezig zijn, waarom we dat doen en welk resultaat we nastreven. Voor
+        inwoners moet duidelijk zijn hoe zij de politieke besluitvorming kunnen volgen
+        en aandacht kunnen vragen voor hun standpunt of perspectief.
+      zoektermen:
+      - inwoners
+      - zich
+      - uitgenodigd
+      - voelen
+      - democratisch
+      - proces
+    - gerelateerde_besluiten:
+      - 583
+      - 581
+      - 12
+      id: bestuurlijke_vernieuwing-002
+      status: niet_gestart
+      tekst: We verwachten dat het college in raadsvoorstellen een grotere context
+        schetst die duidelijk maakt waar het voorstel past in de tijd en het besluitvormingsproces
+        en wat de reikwijdte van het voorstel is. Waar nodig wordt verwezen naar eerdere
+        besluitvorming en achterliggende informatie. Raadsvoorstellen zijn compact
+        en bevatten zo min mogelijk overlap met achterliggende bijlagen. Hierdoor
+        worden ze beter leesbaar en wordt besluitvorming voor inwoners begrijpelijker.
+      zoektermen:
+      - verwachten
+      - college
+      - raadsvoorstellen
+      - grotere
+      - context
+      - schetst
+    - id: bestuurlijke_vernieuwing-003
+      status: niet_gestart
+      tekst: In de onlangs gehouden Quick Scan lokale democratie is gebleken dat de
+        afstand tussen de gemeenteraad en de ambtelijke organisatie als te groot wordt
+        ervaren. Dit vloeit deels voort uit het feit dat we een tijd niet fysiek in
+        het gemeentehuis hebben kunnen vergaderen. De raad en de ambtelijke organisatie
+        moeten (weer) dichter bij elkaar komen. Gemeentelijke dienstverlening voor
+        iedereen toegankelijk
+      zoektermen:
+      - onlangs
+      - gehouden
+      - quick
+      - scan
+      - lokale
+      - democratie
+    - id: bestuurlijke_vernieuwing-004
+      status: niet_gestart
+      tekst: De dienstverlening van de gemeente verloopt tegenwoordig vaak digitaal.
+        Denk aan het aanvragen en betalen van een rijbewijs of paspoort. Niet iedereen
+        is digitaal vaardig genoeg om dit zelfstandig te kunnen doen. Het is daarom
+        belangrijk dat in het gemeentehuis inloopmogelijkheden blijft bestaan. Ook
+        moeten er voldoende mogelijkheden blijven bestaan om mensen digitaal vaardig
+        te maken, bijvoorbeeld via de bibliotheek.
+      zoektermen:
+      - dienstverlening
+      - verloopt
+      - tegenwoordig
+      - vaak
+      - digitaal
+      - denk
+    - id: bestuurlijke_vernieuwing-005
+      status: niet_gestart
+      tekst: De gemeentelijke website moet laagdrempelig en toegankelijk zijn voor
+        gebruikers.
+      zoektermen:
+      - gemeentelijke
+      - website
+      - laagdrempelig
+      - toegankelijk
+      - gebruikers
+    - id: bestuurlijke_vernieuwing-006
+      status: niet_gestart
+      tekst: We willen dat de gemeenschappelijke website direct toegang geeft tot
+        een evenementenagenda en toeristische informatie.
+      zoektermen:
+      - willen
+      - gemeenschappelijke
+      - website
+      - direct
+      - toegang
+      - geeft
+    - id: bestuurlijke_vernieuwing-007
+      status: niet_gestart
+      tekst: De komende jaren verwachten we dat de vraag naar (het faciliteren van)
+        Smart City-technologie zich aan zal dienen. Dit mag niet ten koste gaan van
+        de privacy van onze inwoners. Het moet passend zijn voor de omvang van Baarn,
+        anoniem te gebruiken en niet gericht op het verzamelen van Big Data. 5 Inwonerparticipatie
+        is belangrijk
+      zoektermen:
+      - komende
+      - jaren
+      - verwachten
+      - vraag
+      - faciliteren
+      - smart
+    - id: bestuurlijke_vernieuwing-008
+      status: niet_gestart
+      tekst: Het is duidelijk dat de gemeente niet overal een antwoord op heeft of
+        kan geven. Inwoners hebben ook een verantwoordelijkheid. We geven ruimte aan
+        maatschappelijke initiatieven en de kracht van de gemeenschap. We ondersteunen
+        bestaande initiatieven en verwelkomen nieuwe ideeën vanuit de samenleving.
+      zoektermen:
+      - duidelijk
+      - overal
+      - antwoord
+      - heeft
+      - geven
+      - inwoners
+    - id: bestuurlijke_vernieuwing-009
+      status: niet_gestart
+      tekst: We willen onze inwoners meer zeggenschap over de inrichting van hun buurt
+        geven, bijvoorbeeld met een wijkbudget. Dat vergroot onderlinge verbondenheid
+        en gedeelde verantwoordelijkheid. Bij gedeelde verantwoordelijkheid past ook
+        dat inwoners zelf initiatieven kunnen nemen.
+      zoektermen:
+      - willen
+      - inwoners
+      - zeggenschap
+      - inrichting
+      - buurt
+      - geven
+    - id: bestuurlijke_vernieuwing-010
+      status: niet_gestart
+      tekst: Wanneer beleid voor specifieke doelgroepen wordt ontwikkeld, praat de
+        gemeente niet óver, maar mét hen. Bij voorkeur worden zij vanaf het begin
+        betrokken. De gemeente zoekt daarbij actief naar inwoners die gewoonlijk weinig
+        worden gehoord.
+      zoektermen:
+      - wanneer
+      - beleid
+      - specifieke
+      - doelgroepen
+      - ontwikkeld
+      - praat
+    - id: bestuurlijke_vernieuwing-011
+      status: niet_gestart
+      tekst: Het college gaat bij bepaalde onderwerpen (zoals de energietransitie
+        of de herinrichting van de Brink) experimenteren met een Inwonerforum. Zo’n
+        Inwonerforum wordt samengesteld door loting. Inwoners die ingeloot zijn worden
+        uitgenodigd om hun visie en expertise over het onderwerp in te zetten. Vooraf
+        moet duidelijk zijn wat er met de adviezen wordt gedaan, dat er voldoende
+        ambtelijke capaciteit voor is en dat de gemeenteraad zich aan de uitkomst
+        en de opvolging daarvan committeert.
+      zoektermen:
+      - college
+      - gaat
+      - bepaalde
+      - onderwerpen
+      - energietransitie
+      - herinrichting
+    - id: bestuurlijke_vernieuwing-012
+      status: niet_gestart
+      tekst: Niet alle onderwerpen lenen zich even goed voor inwonerparticipatie.
+        Het college maakt zo veel mogelijk duidelijk binnen welke kaders wordt beslist,
+        over welk deel kan worden meegedacht en wat er met de uitkomsten wordt gedaan.
+        Transparantie en verwachtingsmanagement zijn belangrijk. Communicatie afstemmen
+        op doel en doelgroep
+      zoektermen:
+      - onderwerpen
+      - lenen
+      - zich
+      - even
+      - goed
+      - inwonerparticipatie
+    - id: bestuurlijke_vernieuwing-013
+      status: niet_gestart
+      tekst: Gemeentelijke communicatie die vooral informerend is, zoals persberichten,
+        openbare bekendmakingen of aangepaste openingstijden van het gemeentehuis,
+        wordt in begrijpelijke taal weergegeven via de website en via aanvullende
+        kanalen die aansluiten bij de doelgroepen.
+      zoektermen:
+      - gemeentelijke
+      - communicatie
+      - vooral
+      - informerend
+      - persberichten
+      - openbare
+    - id: bestuurlijke_vernieuwing-014
+      status: niet_gestart
+      tekst: De gemeente zorgt dat interactie met inwoners en ondernemers, zoals het
+        invullen van een vragenlijst of het melden van een gevaarlijke situatie in
+        de openbare ruimte, zo eenvoudig en duidelijk mogelijk en afgestemd op de
+        doelgroep verloopt, bijvoorbeeld via de website of met een applicatie op de
+        telefoon.
+      zoektermen:
+      - zorgt
+      - interactie
+      - inwoners
+      - ondernemers
+      - invullen
+      - vragenlijst
+    - id: bestuurlijke_vernieuwing-015
+      status: niet_gestart
+      tekst: Sociale media worden steeds belangrijker, ook voor gemeentelijke communicatie.
+        We onderkennen dat communicatie via sociale media tweerichtingsverkeer moet
+        zijn en bekijken hoe bijvoorbeeld Twitter, Facebook en Instagram nog beter
+        kunnen worden ingezet om met inwoners te communiceren. 6
+      zoektermen:
+      - sociale
+      - media
+      - steeds
+      - belangrijker
+      - gemeentelijke
+      - communicatie
+    naam: Bestuurlijke vernieuwing, dienstverlening, participatie en communicatie
+  bijlage_portefeuilles:
+    afspraken:
+    - id: bijlage_portefeuilles-001
+      status: niet_gestart
+      tekst: VoorBaarn
+      zoektermen:
+      - voorbaarn
+    - id: bijlage_portefeuilles-002
+      status: niet_gestart
+      tekst: Ruimtelijke ontwikkeling
+      zoektermen:
+      - ruimtelijke
+      - ontwikkeling
+    - id: bijlage_portefeuilles-003
+      status: niet_gestart
+      tekst: Volkshuisvesting en wonen
+      zoektermen:
+      - volkshuisvesting
+      - wonen
+    - id: bijlage_portefeuilles-004
+      status: niet_gestart
+      tekst: Welstand en monumenten
+      zoektermen:
+      - welstand
+      - monumenten
+    - id: bijlage_portefeuilles-005
+      status: niet_gestart
+      tekst: Kunst en cultuur
+      zoektermen:
+      - kunst
+      - cultuur
+    - id: bijlage_portefeuilles-006
+      status: niet_gestart
+      tekst: Evenementenbeleid
+      zoektermen:
+      - evenementenbeleid
+    - id: bijlage_portefeuilles-007
+      status: niet_gestart
+      tekst: Economische zaken
+      zoektermen:
+      - economische
+      - zaken
+    - id: bijlage_portefeuilles-008
+      status: niet_gestart
+      tekst: GroenLinks
+      zoektermen:
+      - groenlinks
+    - id: bijlage_portefeuilles-009
+      status: niet_gestart
+      tekst: Duurzaamheid en energietransitie (inclusief verduurzaming bestaande en
+        nieuwe woningen en betaalbaarheid)
+      zoektermen:
+      - duurzaamheid
+      - energietransitie
+      - inclusief
+      - verduurzaming
+      - bestaande
+      - nieuwe
+    - id: bijlage_portefeuilles-010
+      status: niet_gestart
+      tekst: Milieu – RUD
+      zoektermen:
+      - milieu
+    - id: bijlage_portefeuilles-011
+      status: niet_gestart
+      tekst: Volksgezondheid - GGD
+      zoektermen:
+      - volksgezondheid
+    - id: bijlage_portefeuilles-012
+      status: niet_gestart
+      tekst: Integrale toegang sociaal domein
+      zoektermen:
+      - integrale
+      - toegang
+      - sociaal
+      - domein
+    - id: bijlage_portefeuilles-013
+      status: niet_gestart
+      tekst: Welzijn en vrijwilligers
+      zoektermen:
+      - welzijn
+      - vrijwilligers
+    - id: bijlage_portefeuilles-014
+      status: niet_gestart
+      tekst: WMO
+      zoektermen: []
+    - id: bijlage_portefeuilles-015
+      status: niet_gestart
+      tekst: Inburgering
+      zoektermen:
+      - inburgering
+    - id: bijlage_portefeuilles-016
+      status: niet_gestart
+      tekst: Gemeentelijk vastgoed (exclusief onderwijs)
+      zoektermen:
+      - gemeentelijk
+      - vastgoed
+      - exclusief
+      - onderwijs
+    - id: bijlage_portefeuilles-017
+      status: niet_gestart
+      tekst: PvdA
+      zoektermen:
+      - pvda
+    - id: bijlage_portefeuilles-018
+      status: niet_gestart
+      tekst: Openbare ruimte, water en riolering, speelruimte
+      zoektermen:
+      - openbare
+      - ruimte
+      - water
+      - riolering
+      - speelruimte
+    - id: bijlage_portefeuilles-019
+      status: niet_gestart
+      tekst: Verkeer
+      zoektermen:
+      - verkeer
+    - id: bijlage_portefeuilles-020
+      status: niet_gestart
+      tekst: Groen en natuur
+      zoektermen:
+      - groen
+      - natuur
+    - id: bijlage_portefeuilles-021
+      status: niet_gestart
+      tekst: Afval – RMN, AVU
+      zoektermen:
+      - afval
+    - id: bijlage_portefeuilles-022
+      status: niet_gestart
+      tekst: Begraafplaatsen
+      zoektermen:
+      - begraafplaatsen
+    - id: bijlage_portefeuilles-023
+      status: niet_gestart
+      tekst: Werk en inkomen – BBS, RWA /Amfors
+      zoektermen:
+      - werk
+      - inkomen
+      - amfors
+    - id: bijlage_portefeuilles-024
+      status: niet_gestart
+      tekst: P&O
+      zoektermen: []
+    - id: bijlage_portefeuilles-025
+      status: niet_gestart
+      tekst: Burgerzaken
+      zoektermen:
+      - burgerzaken
+    - id: bijlage_portefeuilles-026
+      status: niet_gestart
+      tekst: Lage Vuursche (dorpsportefeuille)
+      zoektermen:
+      - lage
+      - vuursche
+      - dorpsportefeuille
+    - id: bijlage_portefeuilles-027
+      status: niet_gestart
+      tekst: D66
+      zoektermen: []
+    - id: bijlage_portefeuilles-028
+      status: niet_gestart
+      tekst: Financiën en belastingen
+      zoektermen:
+      - financiën
+      - belastingen
+    - id: bijlage_portefeuilles-029
+      status: niet_gestart
+      tekst: Recreatie en toerisme, Vorstelijk Baarn
+      zoektermen:
+      - recreatie
+      - toerisme
+      - vorstelijk
+    - id: bijlage_portefeuilles-030
+      status: niet_gestart
+      tekst: Onderwijs inclusief onderwijshuisvesting - STEV
+      zoektermen:
+      - onderwijs
+      - inclusief
+      - onderwijshuisvesting
+      - stev
+    - id: bijlage_portefeuilles-031
+      status: niet_gestart
+      tekst: Sport
+      zoektermen:
+      - sport
+    - id: bijlage_portefeuilles-032
+      status: niet_gestart
+      tekst: Jeugd
+      zoektermen:
+      - jeugd
+    - id: bijlage_portefeuilles-033
+      status: niet_gestart
+      tekst: Jeugdzorg
+      zoektermen:
+      - jeugdzorg
+    - id: bijlage_portefeuilles-034
+      status: niet_gestart
+      tekst: ICT - RID
+      zoektermen: []
+    - id: bijlage_portefeuilles-035
+      status: niet_gestart
+      tekst: Burgemeester
+      zoektermen:
+      - burgemeester
+    - id: bijlage_portefeuilles-036
+      status: niet_gestart
+      tekst: Openbare orde en veiligheid - VRU
+      zoektermen:
+      - openbare
+      - orde
+      - veiligheid
+    - id: bijlage_portefeuilles-037
+      status: niet_gestart
+      tekst: Bestuurlijke en juridische zaken
+      zoektermen:
+      - bestuurlijke
+      - juridische
+      - zaken
+    - id: bijlage_portefeuilles-038
+      status: niet_gestart
+      tekst: Toezicht en handhaving
+      zoektermen:
+      - toezicht
+      - handhaving
+    - id: bijlage_portefeuilles-039
+      status: niet_gestart
+      tekst: Evenementenvergunningen
+      zoektermen:
+      - evenementenvergunningen
+    - id: bijlage_portefeuilles-040
+      status: niet_gestart
+      tekst: Regio Amersfoort
+      zoektermen:
+      - regio
+      - amersfoort
+    - id: bijlage_portefeuilles-041
+      status: niet_gestart
+      tekst: Kabinetszaken
+      zoektermen:
+      - kabinetszaken
+    - id: bijlage_portefeuilles-042
+      status: niet_gestart
+      tekst: PR
+      zoektermen: []
+    - id: bijlage_portefeuilles-043
+      status: niet_gestart
+      tekst: Archief
+      zoektermen:
+      - archief
+    - id: bijlage_portefeuilles-044
+      status: niet_gestart
+      tekst: Er worden 4 projectportefeuilles ingesteld - één per coalitiepartij -
+        die een aspect behelzen van de gewenste en
+      zoektermen:
+      - projectportefeuilles
+      - ingesteld
+      - coalitiepartij
+      - aspect
+      - behelzen
+      - gewenste
+    - id: bijlage_portefeuilles-045
+      status: niet_gestart
+      tekst: 'verbindende aanpak gericht op het versterken van de relatie tussen gemeente
+        en inwoners:'
+      zoektermen:
+      - verbindende
+      - aanpak
+      - gericht
+      - versterken
+      - relatie
+      - inwoners
+    - id: bijlage_portefeuilles-046
+      status: niet_gestart
+      tekst: '1. Bestuurlijke vernieuwing (gericht op de werkwijze van het bestuur:
+        samenhang en openheid)'
+      zoektermen:
+      - bestuurlijke
+      - vernieuwing
+      - gericht
+      - werkwijze
+      - bestuur
+      - samenhang
+    - id: bijlage_portefeuilles-047
+      status: niet_gestart
+      tekst: 2. Dienstverlening (gericht op de werkwijze van de organisatie)
+      zoektermen:
+      - dienstverlening
+      - gericht
+      - werkwijze
+      - organisatie
+    - id: bijlage_portefeuilles-048
+      status: niet_gestart
+      tekst: 3. Participatie (gericht op het betrokken van bewoners)
+      zoektermen:
+      - participatie
+      - gericht
+      - betrokken
+      - bewoners
+    - id: bijlage_portefeuilles-049
+      status: niet_gestart
+      tekst: 4. Communicatie (minus PR)
+      zoektermen:
+      - communicatie
+      - minus
+    - id: bijlage_portefeuilles-050
+      status: niet_gestart
+      tekst: De toedeling van deze projectportefeuilles is aan het nieuwe college.
+      zoektermen:
+      - toedeling
+      - deze
+      - projectportefeuilles
+      - nieuwe
+      - college
+    naam: 'Bijlage: voorgestelde portefeuilleverdeling'
+  duurzaamheid:
+    afspraken:
+    - id: duurzaamheid-001
+      status: niet_gestart
+      tekst: De warmte- en energietransitie begint met besparen en isoleren. De gemeente
+        zet actief in op het ontzorgen en helpen van inwoners, bedrijven, ondernemers
+        en verenigingen om daarin goede keuzes te maken. We gaan actief de wijken
+        in, versterken lokale initiatieven als de inzet van energiecoaches en staan
+        open voor aanvullende initiatieven, zoals organisaties die bewoners en wijken
+        mobiliseren. We maken optimaal gebruik van de mogelijkheden uit het Nationaal
+        Isolatieprogramma om sneller, slimmer en socialer te isoleren.
+      zoektermen:
+      - warmte-
+      - energietransitie
+      - begint
+      - besparen
+      - isoleren
+      - actief
+    - id: duurzaamheid-002
+      status: niet_gestart
+      tekst: 'We onderzoeken of en hoe we de warmtetransitie kunnen versnellen. In
+        deze raadsperiode komt voor alle woningen een warmteplan beschikbaar, zodat
+        gericht collectieve dan wel individuele keuzes voor warmteoplossingen mogelijk
+        zijn. De gemeente maakt in samenspraak met bewoners, bedrijven en organisaties
+        als Eemland Wonen en Baarn Duurzaam warmteplannen per wijk, waarin zijn opgenomen:
+        o een agenda voor het wijkgericht isoleren van huurwoningen; o maatregelen
+        om juridische en financiële drempels weg te nemen; o communicatiemiddelen
+        om energiebesparing te promoten.'
+      zoektermen:
+      - onderzoeken
+      - warmtetransitie
+      - versnellen
+      - deze
+      - raadsperiode
+      - komt
+    - id: duurzaamheid-003
+      status: niet_gestart
+      tekst: De gemeente activeert Verenigingen van Eigenaren tot verduurzaming van
+        woningen.
+      zoektermen:
+      - activeert
+      - verenigingen
+      - eigenaren
+      - verduurzaming
+      - woningen
+    - id: duurzaamheid-004
+      status: niet_gestart
+      tekst: We gaan ervan uit dat door de afschaffing van de verhuurderheffing ruimte
+        vrijkomt voor woningcorporaties om de bestaande woningvoorraad te verduurzamen.
+        De te behalen resultaten leggen we vast in de prestatieafspraken.
+      zoektermen:
+      - gaan
+      - ervan
+      - afschaffing
+      - verhuurderheffing
+      - ruimte
+      - vrijkomt
+    - id: duurzaamheid-005
+      status: niet_gestart
+      tekst: Het is een belangrijke taak van de gemeente om verduurzaming van de leefomgeving
+        voor zo veel mogelijk inwoners bereikbaar te maken. Inwoners die financieel
+        niet of moeilijk in staat zijn om maatregelen te nemen, laten we niet achter.
+        Daarom onderzoeken we maatregelen om verduurzaming van woningen betaalbaar
+        te houden. Daar waar landelijke subsidies niet volstaan, onderzoeken we hoe
+        financiële drempels voor inwoners en ondernemers kunnen worden weggenomen.
+      zoektermen:
+      - belangrijke
+      - taak
+      - verduurzaming
+      - leefomgeving
+      - mogelijk
+      - inwoners
+    - id: duurzaamheid-006
+      status: niet_gestart
+      tekst: We activeren ondernemers en bedrijven tot verduurzaming. Zij kunnen daarbij
+        rekenen op ondersteuning van onze onafhankelijke partners. De gemeente gaat
+        actiever informeren, maar ook handhaven op wettelijke verplichtingen op het
+        gebied van energiebesparing en de daarmee samenhangende informatieplicht van
+        bedrijven naar de gemeente. We bezoeken samen met partners alle bedrijven
+        in Baarn voor een energiebesparingsgesprek.
+      zoektermen:
+      - activeren
+      - ondernemers
+      - bedrijven
+      - verduurzaming
+      - rekenen
+      - ondersteuning
+    - id: duurzaamheid-007
+      status: niet_gestart
+      tekst: Om inwoners de mogelijkheid te geven innovatieve oplossingen toe te passen
+        in hun directe leefomgeving onderzoeken we wat nodig is om planologische beperkingen
+        op te heffen. Uitgangspunt in het nieuwe beoordelingskader moet zijn dat verduurzamingsmogelijkheden
+        voor gemeentelijke monumenten en woningen in beschermd dorpsgezicht mogelijk
+        zijn, mits de monumentale waarde en beschermde status worden gewaarborgd.
+      zoektermen:
+      - inwoners
+      - mogelijkheid
+      - geven
+      - innovatieve
+      - oplossingen
+      - passen
+    - id: duurzaamheid-008
+      status: niet_gestart
+      tekst: We ontwikkelen samen met onze partners een klimaatdashboard dat ook toegankelijk
+        is voor inwoners. 14 Duurzame opwek van energie
+      zoektermen:
+      - ontwikkelen
+      - partners
+      - klimaatdashboard
+      - toegankelijk
+      - inwoners
+      - duurzame
+    - id: duurzaamheid-009
+      status: niet_gestart
+      tekst: De komende vier jaar richt de inzet zich op het maximaliseren van zon
+        op daken van huizen, overheidsgebouwen, bedrijfspanden en parkeerterreinen.
+        Op basis daarvan blijkt wat aanvullend nog nodig is. In deze raadsperiode
+        realiseren we geen zonneweides op agrarische en/of natuurgronden. Als blijkt
+        dat er onvoldoende alternatieven zijn, is nader onderzoek als basis voor planvorming
+        wel mogelijk.
+      zoektermen:
+      - komende
+      - vier
+      - jaar
+      - richt
+      - inzet
+      - zich
+    - id: duurzaamheid-010
+      status: niet_gestart
+      tekst: We staan open voor zonnepanelen langs snelweg en spoor, maar realiseren
+        ons dat we hierbij ook afhankelijk zijn van andere overheden.
+      zoektermen:
+      - staan
+      - open
+      - zonnepanelen
+      - langs
+      - snelweg
+      - spoor
+    - id: duurzaamheid-011
+      status: niet_gestart
+      tekst: Uiterlijk 2026 brengen we in kaart welke innovatieve en alternatieve
+        mogelijkheden voor grootschalige opwek van duurzame energie toepasbaar zijn
+        in Baarn. We volgen innovaties op het gebied van de energietransitie zoals
+        aquathermie, geothermie en energieopslag met als ambitie om deze raadsperiode
+        te beginnen met een grootschalig project dat past bij de gemeente Baarn.
+      zoektermen:
+      - uiterlijk
+      - brengen
+      - kaart
+      - innovatieve
+      - alternatieve
+      - mogelijkheden
+    - id: duurzaamheid-012
+      status: niet_gestart
+      tekst: Teruglevering van energie aan het elektriciteitsnet is de komende jaren
+        beperkt mogelijk. Daarom ontwikkelen we een gemeentelijke visie op individuele
+        en collectieve energieopslag en -distributie (‘smart grid’) en de bijhorende
+        infrastructuur. Dit nemen we mee in de Lokale Energie Strategie (LES). Natuur
+        en groen
+      zoektermen:
+      - teruglevering
+      - energie
+      - elektriciteitsnet
+      - komende
+      - jaren
+      - beperkt
+    - id: duurzaamheid-013
+      status: niet_gestart
+      tekst: Baarn is een groene gemeente met veel natuur. Een fijne plek om te wonen
+        en te recreëren. De coalitie erkent dat de gemeente een grote verantwoordelijkheid
+        heeft in het behouden en versterken van het groen, natuurwaarden en biodiversiteit.
+      zoektermen:
+      - groene
+      - natuur
+      - fijne
+      - plek
+      - wonen
+      - recreëren
+    - id: duurzaamheid-014
+      status: niet_gestart
+      tekst: '‘De Staat van Baarn’ maakt de druk op de ruimte zichtbaar: wonen, ondernemen,
+        recreatie, duurzaamheidsmaatregelen en rust concurreren om beperkte ruimte.
+        De gemeente moet zorgvuldige afwegingen maken met actieve participatie van
+        alle betrokkenen en waarborgen dat rust en natuurwaarden worden vastgelegd
+        in de Omgevingsvisie. Binnen dat kader geven we prioriteit aan een gebiedsvisie
+        voor het landelijk gebied met aandacht voor zonering. We onderzoeken daarbij
+        de mogelijkheid van betaald parkeren in recreatie- en natuurgebieden.'
+      zoektermen:
+      - staat
+      - maakt
+      - druk
+      - ruimte
+      - zichtbaar
+      - wonen
+    - id: duurzaamheid-015
+      status: niet_gestart
+      tekst: Op basis van de Groenvisie vergroenen we de openbare ruimte en zorgen
+        we voor meer biodiversiteit. We beschermen soorten door slim beheer van openbaar
+        groen. We onderzoeken hoe we het uitvoeringsplan Groenvisie 2021-2030 de komende
+        jaren kunnen versnellen en intensiveren. We blijven inwoners betrekken bij
+        de vergroening van hun wijk.
+      zoektermen:
+      - basis
+      - groenvisie
+      - vergroenen
+      - openbare
+      - ruimte
+      - zorgen
+    - id: duurzaamheid-016
+      status: niet_gestart
+      tekst: Behoud en herplant van bestaande bomen verkiezen we boven kap en jonge
+        aanplant.
+      zoektermen:
+      - behoud
+      - herplant
+      - bestaande
+      - bomen
+      - verkiezen
+      - boven
+    - id: duurzaamheid-017
+      status: niet_gestart
+      tekst: We dringen het gebruik van chemische bestrijdingsmiddelen binnen de gemeentegrenzen
+        terug door inwoners actief te informeren over de schadelijkheid ervan.
+      zoektermen:
+      - dringen
+      - gebruik
+      - chemische
+      - bestrijdingsmiddelen
+      - gemeentegrenzen
+      - terug
+    - id: duurzaamheid-018
+      status: niet_gestart
+      tekst: Tuinen kunnen een belangrijke bijdrage leveren aan klimaatadaptatie,
+        het voorkomen van hittestress en het versterken van de biodiversiteit. Baarn
+        blijft aangesloten bij Stichting Steenbreek, continueert het project Utrechtse
+        Heuvelrugtuinen en intensiveert de communicatie hierover. We benaderen inwoners
+        actief over de mogelijkheden van vergroening van hun tuinen en bieden praktische
+        ondersteuning. Ook onderzoeken we de mogelijkheden voor subsidieregelingen
+        en faciliteren we het bij elkaar brengen van vraag en aanbod van kennis en
+        ‘helpende handjes'.
+      zoektermen:
+      - tuinen
+      - belangrijke
+      - bijdrage
+      - leveren
+      - klimaatadaptatie
+      - voorkomen
+    - id: duurzaamheid-019
+      status: niet_gestart
+      tekst: We stemmen waterbeheer af op het veranderende klimaat waarin vaker extreem
+        weer zal voorkomen. Circulaire economie
+      zoektermen:
+      - stemmen
+      - waterbeheer
+      - veranderende
+      - klimaat
+      - waarin
+      - vaker
+    - id: duurzaamheid-020
+      status: niet_gestart
+      tekst: We blijven de huidige lijn van gescheiden afvalinzameling volgen met
+        als doel restafval te verminderen, een zo optimaal mogelijk milieuresultaat
+        te behalen en de kosten voor onze inwoners zo laag mogelijk te houden. Wel
+        monitoren we ontwikkelingen als innovatie en statiegeld op blikjes en de mogelijke
+        invloed daarvan op de effectiviteit van afvalinzameling.
+      zoektermen:
+      - huidige
+      - lijn
+      - gescheiden
+      - afvalinzameling
+      - volgen
+      - doel
+    - id: duurzaamheid-021
+      status: niet_gestart
+      tekst: We zetten in op hergebruik en delen van spullen en ondersteunen maatschappelijke
+        initiatieven die dit nastreven.
+      zoektermen:
+      - zetten
+      - hergebruik
+      - delen
+      - spullen
+      - ondersteunen
+      - maatschappelijke
+    - id: duurzaamheid-022
+      status: niet_gestart
+      tekst: We streven ernaar om de Laanstraat ‘de meest circulaire winkelstraat
+        van de Utrechtse Heuvelrug’ te maken en kijken in overleg met belanghebbenden
+        naar de mogelijkheden.
+      zoektermen:
+      - streven
+      - ernaar
+      - laanstraat
+      - meest
+      - circulaire
+      - winkelstraat
+    - id: duurzaamheid-023
+      status: niet_gestart
+      tekst: We streven naar circulair en natuurinclusief bouwen. 15
+      zoektermen:
+      - streven
+      - circulair
+      - natuurinclusief
+      - bouwen
+    - id: duurzaamheid-024
+      status: niet_gestart
+      tekst: We ontwikkelen beleid om binnen de gemeentelijke organisatie duurzaam,
+        circulair, maatschappelijk verantwoord en bij voorkeur lokaal in te kopen
+        en maakt daarbij bijvoorbeeld gebruik van de expertise die binnen het landelijk
+        netwerk Circulair Inkopen beschikbaar is. 16
+      zoektermen:
+      - ontwikkelen
+      - beleid
+      - gemeentelijke
+      - organisatie
+      - duurzaam
+      - circulair
+    naam: Duurzaamheid
+  economie_toerisme_centrum:
+    afspraken:
+    - id: economie_toerisme_centrum-001
+      status: niet_gestart
+      tekst: We ondersteunen ondernemers bij het vinden van ruimte voor de uitvoering
+        van hun onderneming. Daarbij moet er een goede balans zijn tussen de behoefte
+        aan woningen, bedrijvigheid, recreatie en ruimte voor de natuur.
+      zoektermen:
+      - ondersteunen
+      - ondernemers
+      - vinden
+      - ruimte
+      - uitvoering
+      - onderneming
+    - id: economie_toerisme_centrum-002
+      status: niet_gestart
+      tekst: 'De bestaande STEC-rapportage toetsen we jaarlijks aan de actuele behoefte
+        aan ruimte voor bedrijven. We realiseren ons daarbij dat we beperkt de ruimte
+        hebben om aan alle vragen (wonen, werken, recreëren) te kunnen voldoen en
+        keuzes moeten maken. Toerisme: van kwantiteit naar kwaliteit'
+      zoektermen:
+      - bestaande
+      - stec-rapportage
+      - toetsen
+      - jaarlijks
+      - actuele
+      - behoefte
+    - id: economie_toerisme_centrum-003
+      status: niet_gestart
+      tekst: Met betrekking tot toerisme verleggen we de focus van kwantiteit naar
+        kwaliteit. Wij zetten niet in op uitbreiding van massatoerisme, maar benutten
+        de onderscheidende kwaliteiten van de huidige toeristische trekpleisters.
+        We streven ernaar om bezoekers van deze trekpleisters naar het centrum van
+        Baarn te trekken, zodat ook de ondernemers in het centrum profiteren. Daarnaast
+        faciliteren we evenementen die een toegevoegde waarde hebben voor een levendig
+        centrum en periodiek terugkomen.
+      zoektermen:
+      - betrekking
+      - toerisme
+      - verleggen
+      - focus
+      - kwantiteit
+      - kwaliteit
+    - id: economie_toerisme_centrum-004
+      status: niet_gestart
+      tekst: Ter bevordering van de kwaliteit van het toerisme en ter vergroting van
+        de economische impuls aan het centrum, horeca, kunst en cultuur werken we
+        samen met belanghebbenden helder beleid uit voor het reguleren en monitoren
+        van de vestiging van Bed & Breakfasts. Levendig centrum Een levendig centrum
+        is belangrijk voor inwoners, ondernemers en de leefbaarheid van ons dorp.
+        We zien dat evenementen een positieve uitwerking hebben op de aantrekkelijkheid
+        van het centrum. De komende jaren moet de focus liggen op het omzetten van
+        incidentele bezoekersactiviteiten naar een meer constante bezoekersstroom,
+        zodat toerisme ook een positief effect heeft voor lokale ondernemers. Het
+        uiteindelijke doel is dat inwoners en bezoekers zich nog meer aangetrokken
+        voelen tot het centrum.
+      zoektermen:
+      - bevordering
+      - kwaliteit
+      - toerisme
+      - vergroting
+      - economische
+      - impuls
+    - id: economie_toerisme_centrum-005
+      status: niet_gestart
+      tekst: Een levendig centrum maken we met elkaar. De verantwoordelijkheid voor
+        een aantrekkelijk centrum ligt wat ons betreft bij zowel gemeente, ondernemers,
+        vastgoedeigenaren als inwoners. De gemeente is in onze optiek aanjager en
+        kan in voorkomende gevallen als projectleider fungeren. Belangrijk is een
+        helder vergunningentraject, zodat initiatiefnemers niet voortijdig afhaken
+        bij het organiseren van een evenement.
+      zoektermen:
+      - levendig
+      - centrum
+      - maken
+      - elkaar
+      - verantwoordelijkheid
+      - aantrekkelijk
+    - id: economie_toerisme_centrum-006
+      status: niet_gestart
+      tekst: We moeten organisatoren van evenementen niet vermoeien met lastige, complexe
+        trajecten, maar hen helpen en ondersteunen tijdens het vergunningentraject.
+        Vaste formats voor in te dienen plannen kunnen hierbij een rol spelen.
+      zoektermen:
+      - organisatoren
+      - evenementen
+      - vermoeien
+      - lastige
+      - complexe
+      - trajecten
+    - id: economie_toerisme_centrum-007
+      status: niet_gestart
+      tekst: 'We blijven winkeliers en ondernemers stimuleren om activiteiten te ontwikkelen
+        die bijdragen aan de aantrekkelijkheid van het winkelgebied. Dit geldt zowel
+        voor het centrum, de Reigerstraat als de Professor Krabbelaan. De focus ligt
+        op ons primaire winkelgebied: de Laanstraat en directe omgeving.'
+      zoektermen:
+      - winkeliers
+      - ondernemers
+      - stimuleren
+      - activiteiten
+      - ontwikkelen
+      - bijdragen
+    - id: economie_toerisme_centrum-008
+      status: niet_gestart
+      tekst: We ondersteunen activiteiten die tot doel hebben om bezoekers van Paleis
+        Soestdijk, Groeneveld en de grootwinkelbedrijven op de Noordschil naar het
+        centrum van Baarn te trekken. met aandacht voor de daarvoor benodigde voorzieningen.
+        18 Lage Vuursche
+      zoektermen:
+      - ondersteunen
+      - activiteiten
+      - doel
+      - hebben
+      - bezoekers
+      - paleis
+    - id: economie_toerisme_centrum-009
+      status: niet_gestart
+      tekst: De kern van Lage Vuursche gaat soms gebukt onder grote drukte door evenementen.
+        Deze mogen wat ons betreft niet ten koste gaan van het woongenot van de inwoners
+        van Lage Vuursche. Organisatoren van activiteiten in Lage Vuursche dienen
+        hiermee rekening te houden. Parkeeroverlast als gevolg van grootschalige activiteiten
+        in Lage Vuursche is niet acceptabel. Organisatoren dienen in samenspraak met
+        de Contactcommissie Lage Vuursche (CCLV) en landgoedeigenaren tot oplossingen
+        te komen, bijvoorbeeld door weilanden in de omgeving in te zetten als tijdelijk
+        parkeerterrein. 19
+      zoektermen:
+      - kern
+      - lage
+      - vuursche
+      - gaat
+      - soms
+      - gebukt
+    naam: Economie, toerisme en levendig centrum
+  financien:
+    afspraken:
+    - id: financien-001
+      status: niet_gestart
+      tekst: Ons uitgangspunt is een meerjarig sluitende begroting met een gezonde
+        algemene reserve.
+      zoektermen:
+      - uitgangspunt
+      - meerjarig
+      - sluitende
+      - begroting
+      - gezonde
+      - algemene
+    - id: financien-002
+      status: niet_gestart
+      tekst: Wij continueren en professionaliseren het eerder ingezette beleid met
+        betrekking tot het reëel begroten.
+      zoektermen:
+      - continueren
+      - professionaliseren
+      - eerder
+      - ingezette
+      - beleid
+      - betrekking
+    - id: financien-003
+      status: niet_gestart
+      tekst: De algemene reserve worden niet gebruikt voor het dekken van structurele
+        lasten. Er is wel ruimte om incidentele investeringen die ten goede komen
+        aan het welzijn van onze inwoners te bekostigen vanuit de algemene reserve.
+        Subsidies
+      zoektermen:
+      - algemene
+      - reserve
+      - gebruikt
+      - dekken
+      - structurele
+      - lasten
+    - id: financien-004
+      status: niet_gestart
+      tekst: We brengen de adviezen van de rekenkamercommissie met betrekking tot
+        de subsidieverstrekking aan organisaties zo spoedig in praktijk. Uitgangspunt
+        is niet langer de in het verleden verstrekte subsidie. De aanvrager zal aan
+        de hand van objectieve criteria moeten motiveren wat het maatschappelijk rendement
+        van zijn activiteiten voor de gemeenschap is. Lokale lasten
+      zoektermen:
+      - brengen
+      - adviezen
+      - rekenkamercommissie
+      - betrekking
+      - subsidieverstrekking
+      - organisaties
+    - id: financien-005
+      status: niet_gestart
+      tekst: Baarn is en blijft terughoudend in het verhogen van de lokale lasten.
+        Wij streven ernaar om de onroerendzaakbelasting (OZB) de aankomende periode
+        niet meer te laten stijgen dan met het inflatiepercentage. Aanvullende verhoging
+        van de OZB is alleen bespreekbaar als dat nodig is om essentiële voorzieningen
+        in stand te kunnen houden. 20
+      zoektermen:
+      - terughoudend
+      - verhogen
+      - lokale
+      - lasten
+      - streven
+      - ernaar
+    naam: Financiën
+  inleiding:
+    afspraken:
+    - gerelateerde_besluiten:
+      - 650
+      - 599
+      - 577
+      - 552
+      - 551
+      - 547
+      - 545
+      - 529
+      - 520
+      - 491
+      - 488
+      - 487
+      - 486
+      - 484
+      - 483
+      - 474
+      - 467
+      - 432
+      - 431
+      - 430
+      id: inleiding-001
+      status: in_voorbereiding
+      tekst: bestuurlijke vernieuwing (gericht op een open en samenhangende werkwijze
+        van het bestuur);
+      zoektermen:
+      - bestuurlijke
+      - vernieuwing
+      - gericht
+      - open
+      - samenhangende
+      - werkwijze
+    - gerelateerde_besluiten:
+      - 641
+      - 624
+      - 623
+      - 461
+      - 460
+      - 459
+      - 411
+      - 409
+      - 402
+      - 333
+      - 319
+      - 318
+      - 314
+      - 313
+      - 312
+      id: inleiding-002
+      status: in_voorbereiding
+      tekst: dienstverlening (gericht op een dienstbare werkwijze van de gemeentelijke
+        organisatie);
+      zoektermen:
+      - dienstverlening
+      - gericht
+      - dienstbare
+      - werkwijze
+      - gemeentelijke
+      - organisatie
+    - gerelateerde_besluiten:
+      - 610
+      - 609
+      - 588
+      - 484
+      - 483
+      - 471
+      - 469
+      - 466
+      id: inleiding-003
+      status: in_voorbereiding
+      tekst: participatie (gericht op het actief betrekken van inwoners bij besluitvorming);
+      zoektermen:
+      - participatie
+      - gericht
+      - actief
+      - betrekken
+      - inwoners
+      - besluitvorming
+    - gerelateerde_besluiten:
+      - 604
+      - 602
+      - 598
+      - 596
+      - 572
+      - 538
+      - 521
+      - 511
+      - 486
+      - 483
+      - 478
+      - 477
+      - 454
+      - 453
+      - 452
+      - 448
+      id: inleiding-004
+      status: in_voorbereiding
+      tekst: 'communicatie (gericht op een constructieve uitwisseling van informatie,
+        belangen en opvattingen). De coalitiepartijen hebben afgesproken dat elk van
+        de vier aan te stellen wethouders de komende vier jaar één van deze vier aspecten
+        bewaakt. Daarnaast heeft de coalitie stevige ambities op het gebied van wonen
+        en leefomgeving, preventie en welzijn, duurzaamheid, veiligheid en een levendig
+        centrum. We willen deze ambities waarmaken binnen een gezond en duurzaam financieel
+        kader. Waar we specifieke ruimtelijke visies introduceren, bedden we die in
+        in de op te stellen Omgevingsvisie. Het is aan het nieuwe college om één en
+        ander te concretiseren in een uitvoeringsprogramma. Voor we dieper ingaan
+        op de genoemde thema’s willen we ons uitspreken over twee specifieke dossiers
+        uit de voorgaande collegeperiode: de huisvesting van het theater en de bibliotheek
+        en het bestemmingsplan Landgoed Paleis Soestdijk. Huisvesting theater/ bibliotheek
+        In december 2020 heeft de raad besloten om het theater en de bibliotheek te
+        huisvesten in het pand van de huidige Speeldoos aan de Rembrandtlaan. Voor
+        de vernieuwbouw is een budget van € 9,8 miljoen beschikbaar gesteld. Het college
+        heeft destijds toegezegd dat terugkoppeling naar de raad plaatsvindt als na
+        aanbesteding blijkt dat dit budget wordt overschreden of als het programma
+        van eisen moet worden bijgesteld om binnen het budget te blijven. Dit voorbehoud
+        maakt deel uit van de aanbestedingsvoorwaarden. We hebben te maken met een
+        duidelijk signaal dat de kiezer bij de gemeenteraadsverkiezingen heeft afgegeven.
+        Er is nog steeds veel draagvlak voor het verplaatsen van het theater en de
+        bibliotheek naar de Brink. Maar er ligt ook een democratisch genomen besluit.
+        Zorgvuldigheid van bestuur vereist dat een genomen besluit niet zomaar wordt
+        gewijzigd. Daarom willen we dat het nieuwe college zo snel mogelijk gelijktijdig
+        twee onderzoeken laat uitvoeren. Het eerste onderzoek moet duidelijk maken
+        of het definitief ontwerp voor de vernieuwbouw volledig en realistisch is
+        en of meerwerk achteraf kan worden uitgesloten. Wanneer blijkt dat het definitief
+        ontwerp niet volledig is en meerwerk kan worden verwacht, zal het besluit
+        van december 2020 worden heroverwogen, waarbij in ieder geval wordt meegenomen
+        of een alternatief plan op de Brink haalbaar is. Het tweede onderzoek betreft
+        een raming voor de onderdelen die nu geen deel uitmaken van de huidige aanbesteding
+        voor vernieuwbouw van de Speeldoos, zoals het noodzakelijke onderhoud voor
+        de grote zaal, de duurzaamheidsmaatregelen en de geluidsisolatie tussen de
+        zalen. Zo wordt in geval van heroverweging van het besluit een correcte vergelijking
+        met een alternatief plan mogelijk. 3 De coalitiepartijen accepteren dat het
+        oorspronkelijke besluit intact blijft als de aanbesteding - met inachtneming
+        van de bovengenoemde randvoorwaarden - binnen het budget van € 9,8 miljoen
+        blijft. Bestemmingsplan Landgoed Paleis Soestdijk In februari 2022 heeft de
+        gemeenteraad het bestemmingsplan Landgoed Paleis Soestdijk vastgesteld. Elf
+        organisaties, instellingen en particulieren hebben hierop bezwaar aangetekend
+        bij de Raad van State. De verwachting is dat het minimaal zes maanden - en
+        mogelijk veel langer - duurt voordat de Raad van State zich over de bezwaren
+        uitspreekt. Als onderdelen van het bestemmingsplan vanuit de Raad van State
+        voor reparatie worden terugverwezen, worden deze gerepareerd. Als de procedure
+        geheel moet worden overgedaan, ontstaat een nieuwe situatie en zijn de coalitiepartijen
+        vrij om hierover te zijner tijd in de gemeenteraad hun eigen afwegingen te
+        maken. Bespreken in de samenleving Na ondertekening van dit akkoord zal het
+        nieuwe college in gesprek gaan met inwoners en maatschappelijke organisaties
+        om inspiratie en inbreng op te halen voor de invulling van het uitvoeringsprogramma
+        van het college. Daarnaast maken de coalitiepartijen zich er sterk voor dat
+        de gemeenteraadsleden regelmatig met de samenleving in gesprek gaan over de
+        thema’s uit dit coalitieakkoord. Ondertekend in Baarn op 13 juni 2022 door:
+        VoorBaarn - Tino Schouten GroenLinks - Jeroen Bosman Partij van de Arbeid
+        – Sandra Bruijstens D66 - Hanneke Struijk - Cramer 4'
+      zoektermen:
+      - communicatie
+      - gericht
+      - constructieve
+      - uitwisseling
+      - informatie
+      - belangen
+    naam: Inleiding
+  preventie_en_welzijn:
+    afspraken:
+    - id: preventie_en_welzijn-001
+      status: niet_gestart
+      tekst: Goed onderwijs is een belangrijke basis voor een gelukkig en gezond leven.
+        We ondersteunen onderwijsorganisaties door onderwijshuisvesting te realiseren
+        die voldoet aan de eisen van deze tijd.
+      zoektermen:
+      - goed
+      - onderwijs
+      - belangrijke
+      - basis
+      - gelukkig
+      - gezond
+    - id: preventie_en_welzijn-002
+      status: niet_gestart
+      tekst: Iedereen moet de kans krijgen om talenten te ontdekken en te ontwikkelen.
+        In de komende jaren wordt samen met de scholen invulling gegeven aan het onderwijskansenbeleid
+        en de extra gelden vanuit het Nationaal Programma Onderwijs. Wij willen graag
+        blijvende steun geven aan instrumenten als taalklassen, bibliotheek op school,
+        zomerscholen en verlengde schooldagen om de opgelopen leervertraging van kinderen
+        tegen te gaan.
+      zoektermen:
+      - kans
+      - krijgen
+      - talenten
+      - ontdekken
+      - ontwikkelen
+      - komende
+    - id: preventie_en_welzijn-003
+      status: niet_gestart
+      tekst: Wij erkennen het belang van Vroeg- en Voorschoolse Educatie (VVE) voor
+        de ontwikkeling van kinderen. De gemeente geeft ouders actief voorlichting
+        en hulp bij het inschrijven voor VVE op de peuterspeelzaal of opvang.
+      zoektermen:
+      - erkennen
+      - belang
+      - vroeg-
+      - voorschoolse
+      - educatie
+      - ontwikkeling
+    - id: preventie_en_welzijn-004
+      status: niet_gestart
+      tekst: We maken bijlessen beschikbaar voor alle kinderen die deze ondersteuning
+        nodig hebben. We onderzoeken hoe we dit mogelijk maken voor kinderen van ouders
+        met een smalle beurs.
+      zoektermen:
+      - maken
+      - bijlessen
+      - beschikbaar
+      - kinderen
+      - deze
+      - ondersteuning
+    - id: preventie_en_welzijn-005
+      status: niet_gestart
+      tekst: 'De financiële situatie in een gezin mag voor kinderen en jongeren geen
+        belemmering zijn om mee te doen aan schoolactiviteiten. We overleggen met
+        scholen hoe zij dit waarborgen. Werk en bestaanszekerheid: begrip in plaats
+        van wantrouwen'
+      zoektermen:
+      - financiële
+      - situatie
+      - gezin
+      - kinderen
+      - jongeren
+      - belemmering
+    - id: preventie_en_welzijn-006
+      status: niet_gestart
+      tekst: We gaan ervan uit dat iedere inwoner volwaardig wil meedoen in de Baarnse
+        samenleving. Zinvol werk is daarbij belangrijk. Daarmee creëren we bestaanszekerheid.
+        Armoede en schulden zijn een groot maatschappelijk probleem met ingrijpende
+        gevolgen voor onze inwoners. Wij willen inwoners die dit treft helpen met
+        een benadering vanuit begrip en niet vanuit wantrouwen. Dat kan een wereld
+        van verschil maken.
+      zoektermen:
+      - gaan
+      - ervan
+      - inwoner
+      - volwaardig
+      - meedoen
+      - baarnse
+    - id: preventie_en_welzijn-007
+      status: niet_gestart
+      tekst: Om te stimuleren dat mensen vanuit de bijstand stapsgewijs aan betaald
+        werk komen, gaan we soepeler om met regels rond kleine bijverdiensten. Daarbij
+        ligt de focus altijd op het vinden van werk.
+      zoektermen:
+      - stimuleren
+      - mensen
+      - vanuit
+      - bijstand
+      - stapsgewijs
+      - betaald
+    - id: preventie_en_welzijn-008
+      status: niet_gestart
+      tekst: We geven als gemeentelijke organisatie het goede voorbeeld door meer
+        beschutte arbeidsplaatsen te creëren dan wettelijk verplicht.
+      zoektermen:
+      - geven
+      - gemeentelijke
+      - organisatie
+      - goede
+      - voorbeeld
+      - beschutte
+    - id: preventie_en_welzijn-009
+      status: niet_gestart
+      tekst: We continueren de succesvolle aanpak van het actieplan tegen armoede
+        met onze armoederegisseurs. We hebben speciale aandacht voor mogelijke armoede
+        onder inwoners met een middeninkomen die door de stijgende woon- en energielasten
+        in financiële problemen komen.
+      zoektermen:
+      - continueren
+      - succesvolle
+      - aanpak
+      - actieplan
+      - tegen
+      - armoede
+    - id: preventie_en_welzijn-010
+      status: niet_gestart
+      tekst: 'Zo vroeg mogelijk signaleren van schulden voorkomt situaties waarin
+        de gevolgen niet meer te overzien zijn. We streven naar passende oplossingen
+        die inwoners waar mogelijk in hun eigen kracht brengen. Maar wie hulp nodig
+        heeft, krijgt hulp. In onze benadering en communicatie realiseren we ons dat
+        het hebben van schulden inwoners vaak kwetsbaar en onzeker maakt. 10 Zorg:
+        preventie en eenvoudige toegang voorop Preventie en eenvoudige toegang tot
+        de zorg staan voorop. Daarbij nemen we het vertrouwen in onze inwoners als
+        leidraad. We voorkomen dat inwoners de weg naar passende zorg en ondersteuning
+        ervaren als een reis door een regeldoolhof met steeds weer wisselende gesprekspartners.
+        Integrale toegang is niet alleen een loket, maar wat ons betreft ook een vertrouwd
+        gezicht en een plek dichtbij.'
+      zoektermen:
+      - vroeg
+      - mogelijk
+      - signaleren
+      - schulden
+      - voorkomt
+      - situaties
+    - id: preventie_en_welzijn-011
+      status: niet_gestart
+      tekst: We blijven werken aan het versterken van de samenwerking tussen BBS,
+        Pit Baarn, Vluchtelingenwerk e.a.
+      zoektermen:
+      - werken
+      - versterken
+      - vluchtelingenwerk
+    - id: preventie_en_welzijn-012
+      status: niet_gestart
+      tekst: Wij geloven dat dit leidt tot een betere ondersteuning van onze inwoners
+        en een efficiëntere inzet van middelen.
+      zoektermen:
+      - geloven
+      - leidt
+      - betere
+      - ondersteuning
+      - inwoners
+      - efficiëntere
+    - id: preventie_en_welzijn-013
+      status: niet_gestart
+      tekst: De ontwikkelde aanpak vanuit het actieplan ‘Eén tegen eenzaamheid’ vinden
+        we een basistaak van de gemeente. We maken dit beleid structureel onderdeel
+        van onze zorgaanpak.
+      zoektermen:
+      - ontwikkelde
+      - aanpak
+      - vanuit
+      - actieplan
+      - tegen
+      - eenzaamheid
+    - id: preventie_en_welzijn-014
+      status: niet_gestart
+      tekst: 'We erkennen de belangrijke rol van mantelzorgers. Om te voorkomen dat
+        ze overbelast raken verbeteren we de ondersteuning. Mantelzorg door jonge
+        kinderen voorkomen we waar mogelijk: kinderen moeten kind kunnen zijn.'
+      zoektermen:
+      - erkennen
+      - belangrijke
+      - mantelzorgers
+      - voorkomen
+      - overbelast
+      - raken
+    - id: preventie_en_welzijn-015
+      status: niet_gestart
+      tekst: We benaderen mensen die tijdens de coronapandemie hun zorg hebben opgezegd
+        om te voorkomen dat hen passende zorg wordt onthouden.
+      zoektermen:
+      - benaderen
+      - mensen
+      - tijdens
+      - coronapandemie
+      - zorg
+      - hebben
+    - id: preventie_en_welzijn-016
+      status: niet_gestart
+      tekst: We willen dat het college strakker (bij)stuurt op de overeenkomsten met
+        zorgaanbieders. In nieuwe regionale inkoopafspraken hebben we oog voor lokale
+        organisaties en ZZP’ers die de gevraagde zorg kunnen bieden.
+      zoektermen:
+      - willen
+      - college
+      - strakker
+      - stuurt
+      - overeenkomsten
+      - zorgaanbieders
+    - id: preventie_en_welzijn-017
+      status: niet_gestart
+      tekst: We streven ernaar het abonnementstarief voor Wmo-voorzieningen te vervangen
+        door een bijdrage die rekening houdt met financiële draagkracht.
+      zoektermen:
+      - streven
+      - ernaar
+      - abonnementstarief
+      - wmo-voorzieningen
+      - vervangen
+      - bijdrage
+    - id: preventie_en_welzijn-018
+      status: niet_gestart
+      tekst: We creëren voor het Lokaal Team een financiële voorziening ten behoeve
+        van onconventionele oplossingen die inwoners direct kunnen helpen.
+      zoektermen:
+      - creëren
+      - lokaal
+      - team
+      - financiële
+      - voorziening
+      - behoeve
+    - id: preventie_en_welzijn-019
+      status: niet_gestart
+      tekst: Buurtkamers waar inwoners elkaar kunnen ontmoeten vinden wij een belangrijk
+        middel om de verbinding tussen inwoners te versterken.
+      zoektermen:
+      - buurtkamers
+      - inwoners
+      - elkaar
+      - ontmoeten
+      - vinden
+      - belangrijk
+    - id: preventie_en_welzijn-020
+      status: niet_gestart
+      tekst: 'Lokale initiatieven ondersteunen we zoveel mogelijk vanuit de houding:
+        “Ja, mits...” We huisvesten Lokaal- O en Frontaalkunst in het Poorthuis (of
+        zo nodig een gelijkwaardige locatie) tot er een definitieve oplossing voor
+        het huisvesten van maatschappelijke organisaties is.'
+      zoektermen:
+      - lokale
+      - initiatieven
+      - ondersteunen
+      - zoveel
+      - mogelijk
+      - vanuit
+    - id: preventie_en_welzijn-021
+      status: niet_gestart
+      tekst: 'We onderzoeken hoe we oudere inwoners kunnen stimuleren om te kiezen
+        voor een meer passende woonoplossing. Daarbij kijken we niet alleen naar de
+        vraag, maar ook naar het aanbod. Jeugdzorg: toegang en veiligheid voorop'
+      zoektermen:
+      - onderzoeken
+      - oudere
+      - inwoners
+      - stimuleren
+      - kiezen
+      - passende
+    - id: preventie_en_welzijn-022
+      status: niet_gestart
+      tekst: Ook in Baarn lopen de kosten van de jeugdzorg op. Door nadruk op preventie
+        en vroegsignalering, bijvoorbeeld door onderwijsmedewerkers, huisartsen en
+        jongerenwerkers, kunnen veel vragen om hulp worden voorkomen.
+      zoektermen:
+      - lopen
+      - kosten
+      - jeugdzorg
+      - nadruk
+      - preventie
+      - vroegsignalering
+    - id: preventie_en_welzijn-023
+      status: niet_gestart
+      tekst: De gemeente ontplooit initiatieven om huiselijk geweld en kindermishandeling
+        bespreekbaar te maken op scholen en in wijken. De gemeente zet in op een integrale
+        aanpak van huiselijk geweld samen met veiligheids- en hulpverleningsorganisaties,
+        scholen en het lokaal team. De effectiviteit van deze aanpak wordt gemeten
+        en waar nodig verbeterd. In de uitvoering van de jeugdzorg is het van belang
+        dat de toegang tot hulp wordt verbeterd en de veiligheid van kinderen voorop
+        staat.
+      zoektermen:
+      - ontplooit
+      - initiatieven
+      - huiselijk
+      - geweld
+      - kindermishandeling
+      - bespreekbaar
+    - id: preventie_en_welzijn-024
+      status: niet_gestart
+      tekst: We kiezen ervoor om jongeren die gebruik maken van jeugdzorg op hun 18e
+        verjaardag niet in de steek te laten. Vanaf hun 16e verjaardag wordt samen
+        met hen gewerkt aan een zorgvuldige overgang naar zelfstandigheid of blijvende
+        zorg en ondersteuning (zo nodig tot het 23e jaar). We maken hierbij gebruik
+        van de ervaringen uit experimenten in andere gemeenten.
+      zoektermen:
+      - kiezen
+      - ervoor
+      - jongeren
+      - gebruik
+      - maken
+      - jeugdzorg
+    - id: preventie_en_welzijn-025
+      status: niet_gestart
+      tekst: 11 Baarn voor iedereen Iedereen in Baarn moet mee kunnen doen in de Baarnse
+        samenleving. We ondersteunen initiatieven die dit mogelijk maken, maar spreken
+        inwoners ook aan op hun eigen verantwoordelijkheid.
+      zoektermen:
+      - baarnse
+      - samenleving
+      - ondersteunen
+      - initiatieven
+      - mogelijk
+      - maken
+    - id: preventie_en_welzijn-026
+      status: niet_gestart
+      tekst: We zorgen samen met inwoners en organisaties dat Baarn voor iedereen
+        toegankelijk is. We nemen als Baarn onze verantwoordelijkheid voor het uitvoeren
+        van het VN-verdrag voor de rechten van mensen met een beperking. In de komende
+        periode geven we invulling aan de Lokale Inclusieagenda. We gaan bij openbare
+        voorzieningen en activiteiten uit van ‘toegang en bruikbaarheid voor iedereen’
+        in plaats van ‘toegang en bruikbaarheid voor de gemiddelde gebruiker’.
+      zoektermen:
+      - zorgen
+      - inwoners
+      - organisaties
+      - toegankelijk
+      - nemen
+      - verantwoordelijkheid
+    - id: preventie_en_welzijn-027
+      status: niet_gestart
+      tekst: Laaggeletterdheid van inwoners is bij zorg- en hulpverleners bekend.
+        Zij zijn in staat om te signaleren en ondersteuning te bieden. We ondersteunen
+        de bibliotheek en (vrijwilligers)organisaties bij het signaleren van laaggeletterdheid
+        en het bieden van scholing.
+      zoektermen:
+      - laaggeletterdheid
+      - inwoners
+      - zorg-
+      - hulpverleners
+      - bekend
+      - staat
+    - id: preventie_en_welzijn-028
+      status: niet_gestart
+      tekst: We willen één vaste gemeentelijke coördinator inburgering die nauw samenwerkt
+        met de vrijwilligers van Vluchtelingenwerk. We stimuleren laagdrempelige taalcursussen
+        en ondersteuning door bijvoorbeeld taalmaatjes. Bij inburgering is speciaal
+        aandacht nodig voor ouders van schoolgaande kinderen. We werken samen met
+        scholen waar nieuwkomers starten en zorgen dat voorzieningen daar bekend zijn.
+      zoektermen:
+      - willen
+      - vaste
+      - gemeentelijke
+      - coördinator
+      - inburgering
+      - nauw
+    - id: preventie_en_welzijn-029
+      status: niet_gestart
+      tekst: We benutten het potentieel van nieuwkomers. Als mensen kunnen werken,
+        stimuleren en faciliteren we dat. We vinden het belangrijk dat nieuwkomers
+        daarbij zelf hun verantwoordelijkheid nemen.
+      zoektermen:
+      - benutten
+      - potentieel
+      - nieuwkomers
+      - mensen
+      - werken
+      - stimuleren
+    - id: preventie_en_welzijn-030
+      status: niet_gestart
+      tekst: Uitgangspunt is dat iedereen zichzelf moet kunnen zijn. We sluiten aan
+        bij (landelijke)
+      zoektermen:
+      - uitgangspunt
+      - zichzelf
+      - sluiten
+      - landelijke
+    - id: preventie_en_welzijn-031
+      status: niet_gestart
+      tekst: voorlichtingscampagnes en acties rond diversiteit, o.a. in jeugdzorg
+        en onderwijs en geven actief invulling aan het Regenboogstembusakkoord.
+      zoektermen:
+      - voorlichtingscampagnes
+      - acties
+      - rond
+      - diversiteit
+      - jeugdzorg
+      - onderwijs
+    - id: preventie_en_welzijn-032
+      status: niet_gestart
+      tekst: Voor racisme en discriminatie is geen plaats binnen ons dorp. We treden
+        op tegen vormen van discriminatie, steunen inwoners die discriminatie hebben
+        ervaren en stimuleren het doen van aangifte. We gaan in gesprek met verenigingen
+        en organisaties om te bespreken hoe we discriminatie kunnen voorkomen. Jongeren
+        in Baarn
+      zoektermen:
+      - racisme
+      - discriminatie
+      - plaats
+      - dorp
+      - treden
+      - tegen
+    - id: preventie_en_welzijn-033
+      status: niet_gestart
+      tekst: De Baarnse jeugd is de afgelopen jaren onvoldoende in beeld geweest bij
+        de lokale politiek. Wij willen dit herstellen en met jongeren in gesprek gaan
+        over hun wensen voor Baarn.
+      zoektermen:
+      - baarnse
+      - jeugd
+      - afgelopen
+      - jaren
+      - onvoldoende
+      - beeld
+    - id: preventie_en_welzijn-034
+      status: niet_gestart
+      tekst: We betrekken jongeren bij de Baarnse samenleving en benaderen hen actief
+        en aansprekend over onderwerpen die hen direct aangaan.
+      zoektermen:
+      - betrekken
+      - jongeren
+      - baarnse
+      - samenleving
+      - benaderen
+      - actief
+    - id: preventie_en_welzijn-035
+      status: niet_gestart
+      tekst: We gaan met jongeren in gesprek over een eigen plek. Hiervoor versnellen
+        we het onderzoek dat op dit moment plaatsvindt. Sociale veiligheid en inclusiviteit
+        zijn belangrijke aandachtspunten. Ook hebben we oog voor jongeren die uit
+        willen gaan, maar nog geen 18 jaar zijn. Sport draagt bij aan vitaliteit Sport
+        en bewegen dragen bij aan een gezonde levensstijl en daarmee aan de vitaliteit
+        van onze inwoners. We willen inwoners zoveel mogelijk stimuleren om te bewegen.
+        Sportverenigingen vervullen daarin een bijzondere rol. We continueren bestaande
+        programma’s voor jongeren en ouderen.
+      zoektermen:
+      - gaan
+      - jongeren
+      - gesprek
+      - eigen
+      - plek
+      - hiervoor
+    - id: preventie_en_welzijn-036
+      status: niet_gestart
+      tekst: We zetten in op de breedtesport. We behandelen daarbij alle verenigingen
+        gelijk, ongeacht het aantal leden. We stimuleren samenwerking tussen verenigingen,
+        zowel om van elkaar te leren als om in kaart te brengen waar synergie te bereiken
+        is.
+      zoektermen:
+      - zetten
+      - breedtesport
+      - behandelen
+      - verenigingen
+      - gelijk
+      - ongeacht
+    - id: preventie_en_welzijn-037
+      status: niet_gestart
+      tekst: Sporten en bewegen kan ook goed in de openbare ruimte. We benutten plekken
+        in de openbare ruimte die daarvoor geschikt zijn.
+      zoektermen:
+      - sporten
+      - bewegen
+      - goed
+      - openbare
+      - ruimte
+      - benutten
+    - id: preventie_en_welzijn-038
+      status: niet_gestart
+      tekst: We behouden het programma High Five voor de jeugd van Baarn en onderzoeken
+        of we dit voor meer leeftijden kunnen introduceren. 12 Zwemmen is een basisvaardigheid
+        die elk kind onder de 12 onder de knie zou moeten hebben. We overleggen met
+        de Trits en de basisscholen hoe we ervoor zorgen dat alle kinderen in Baarn
+        voor hun 12e jaar een zwemdiploma halen.
+      zoektermen:
+      - behouden
+      - programma
+      - high
+      - five
+      - jeugd
+      - onderzoeken
+    - id: preventie_en_welzijn-039
+      status: niet_gestart
+      tekst: Sport en bewegen moet voor zoveel mogelijk inwoners, met of zonder beperking,
+        mogelijk zijn. We ondersteunen sportverenigingen om dit te realiseren.
+      zoektermen:
+      - sport
+      - bewegen
+      - zoveel
+      - mogelijk
+      - inwoners
+      - zonder
+    - id: preventie_en_welzijn-040
+      status: niet_gestart
+      tekst: Inwoners die onvoldoende financiële ruimte hebben om deel te nemen aan
+        sportverenigingen ondersteunen we financieel. We onderzoeken of we de ondergrens
+        van het declaratiefonds moeten vergroten of dat we hiervoor andere middelen
+        moeten inzetten.
+      zoektermen:
+      - inwoners
+      - onvoldoende
+      - financiële
+      - ruimte
+      - hebben
+      - deel
+    - id: preventie_en_welzijn-041
+      status: niet_gestart
+      tekst: De komende vier jaar bewegen we zo veel mogelijk sporters in Baarn om
+        de fiets te pakken.
+      zoektermen:
+      - komende
+      - vier
+      - jaar
+      - bewegen
+      - mogelijk
+      - sporters
+    - id: preventie_en_welzijn-042
+      status: niet_gestart
+      tekst: 'Cultuur: op hoog peil houden'
+      zoektermen:
+      - cultuur
+      - hoog
+      - peil
+      - houden
+    - id: preventie_en_welzijn-043
+      status: niet_gestart
+      tekst: Baarn kent een rijk en actief cultuurleven. Dit is belangrijk voor de
+        leefbaarheid in ons dorp. Ons hoge voorzieningenniveau wordt door alle inwoners
+        gewaardeerd. We zetten ons in om dit op peil te houden.
+      zoektermen:
+      - kent
+      - rijk
+      - actief
+      - cultuurleven
+      - belangrijk
+      - leefbaarheid
+    - id: preventie_en_welzijn-044
+      status: niet_gestart
+      tekst: We faciliteren inwoners en organisaties die culturele activiteiten organiseren
+        waar mogelijk. We doen dit op een herkenbare manier en zoveel mogelijk via
+        één aanspreekpunt.
+      zoektermen:
+      - faciliteren
+      - inwoners
+      - organisaties
+      - culturele
+      - activiteiten
+      - organiseren
+    - id: preventie_en_welzijn-045
+      status: niet_gestart
+      tekst: De cultuursector is hard getroffen door de coronabeperkingen. Daarom
+        geven we actief uitvoering aan het stembusakkoord van de Podiumkunsten. We
+        onderzoeken hoe we de cultuursector een impuls kunnen geven, bijvoorbeeld
+        door een Baarnse cultuurpas of de inzet van cultuurbuddies.
+      zoektermen:
+      - cultuursector
+      - hard
+      - getroffen
+      - coronabeperkingen
+      - daarom
+      - geven
+    - id: preventie_en_welzijn-046
+      status: niet_gestart
+      tekst: We onderzoeken mogelijkheden om in het centrum meer cultuur mogelijk
+        te maken, bijvoorbeeld door leegstaande panden of etalages beschikbaar te
+        krijgen voor cultuuruitingen. Dit kan bijdragen aan een levendig centrum en
+        het versterken van Baarn als culturele gemeente in de regio.
+      zoektermen:
+      - onderzoeken
+      - mogelijkheden
+      - centrum
+      - cultuur
+      - mogelijk
+      - maken
+    - id: preventie_en_welzijn-047
+      status: niet_gestart
+      tekst: We onderzoeken hoe we inwoners die een drempel ervaren in contact kunnen
+        brengen met culturele activiteiten. 13
+      zoektermen:
+      - onderzoeken
+      - inwoners
+      - drempel
+      - ervaren
+      - contact
+      - brengen
+    naam: Preventie en welzijn
+  veiligheid:
+    afspraken:
+    - id: veiligheid-001
+      status: niet_gestart
+      tekst: Binnen het regionale Integraal Veiligheidsplan (IVP) besteden we expliciet
+        aandacht aan lokale veiligheidsprioriteiten, waaronder in ieder geval woninginbraken
+        en fraude en oplichting.
+      zoektermen:
+      - regionale
+      - integraal
+      - veiligheidsplan
+      - besteden
+      - expliciet
+      - aandacht
+    - id: veiligheid-002
+      status: niet_gestart
+      tekst: We maken inwoners bewust van de risico’s op woninginbraak en ondersteunen
+        hen om preventieve maatregelen te treffen.
+      zoektermen:
+      - maken
+      - inwoners
+      - bewust
+      - risico
+      - woninginbraak
+      - ondersteunen
+    - id: veiligheid-003
+      status: niet_gestart
+      tekst: Fraude en oplichting is in Nederland inmiddels de snelst groeiende vorm
+        van criminaliteit. Vaak vindt dit online plaats. De gemeente besteedt structureel
+        aandacht aan digitale veiligheid en zet vooral in op het alert en weerbaar
+        maken van jongeren, senioren, laaggeletterden en ondernemers.
+      zoektermen:
+      - fraude
+      - oplichting
+      - nederland
+      - inmiddels
+      - snelst
+      - groeiende
+    - id: veiligheid-004
+      status: niet_gestart
+      tekst: De gemeente communiceert regelmatig en transparant met de inwoners over
+        veiligheid. Toezicht en handhaving in de openbare ruimte In de komende jaren
+        geven we extra aandacht aan het verbeteren van de effectiviteit van de handhaving.
+      zoektermen:
+      - communiceert
+      - regelmatig
+      - transparant
+      - inwoners
+      - veiligheid
+      - toezicht
+    - id: veiligheid-005
+      status: niet_gestart
+      tekst: Wij stimuleren de samenwerking van boa’s met de omliggende gemeenten
+        Soest en Bunschoten. Ook voor het landelijk gebied stimuleren wij de samenwerking
+        tussen de boa’s van Staatsbosbeheer en landgoed Peijnenburg. Een betere samenwerking
+        verbetert de opsporing en de veiligheid van onze boa’s.
+      zoektermen:
+      - stimuleren
+      - omliggende
+      - gemeenten
+      - soest
+      - bunschoten
+      - landelijk
+    - id: veiligheid-006
+      status: niet_gestart
+      tekst: We dringen het gebruik van verdovende middelen terug door intensiever
+        te controleren op plekken waar in drugs wordt gehandeld. Daarmee brengen we
+        de overlast van zwerfafval terug en verhogen we het gevoel van veiligheid.
+      zoektermen:
+      - dringen
+      - gebruik
+      - verdovende
+      - middelen
+      - terug
+      - intensiever
+    - id: veiligheid-007
+      status: niet_gestart
+      tekst: Als andere manieren van preventie en opsporing niet succesvol zijn, sluiten
+        wij het inzetten van mobiel cameratoezicht niet uit. Dit toezicht is altijd
+        beperkt van duur. Vooraf wordt gemeld waar mobiel cameratoezicht wordt ingezet.
+        Opnames die niet nodig zijn voor opsporing worden binnen 24 uur vernietigd.
+      zoektermen:
+      - andere
+      - manieren
+      - preventie
+      - opsporing
+      - succesvol
+      - sluiten
+    naam: Veiligheid
+  wonen_en_leefomgeving:
+    afspraken:
+    - id: wonen_en_leefomgeving-001
+      status: niet_gestart
+      tekst: 'We brengen in kaart op welke locaties in Baarn woningbouw mogelijk is
+        en zoeken daarbij ook naar creatieve, wellicht onconventionele oplossingen.
+        Daarbij geldt: bedrijventerreinen blijven bedrijventerreinen.'
+      zoektermen:
+      - brengen
+      - kaart
+      - locaties
+      - woningbouw
+      - mogelijk
+      - zoeken
+    - id: wonen_en_leefomgeving-002
+      status: niet_gestart
+      tekst: We actualiseren het onderzoek naar de woonbehoefte, het woningaanbod
+        en de mate van doorstroming, zodat duidelijk wordt welke woningen de komende
+        jaren extra hard nodig zijn en welke maatregelen nodig zijn om iedere woningzoekende
+        aan een passende woning te helpen. We inventariseren welke instrumenten bijdragen
+        aan een evenwichtig woningaanbod. Denk aan actieve grondpolitiek, het afwegingskader
+        woningtypen, enz. Om nieuwbouwwoningen betaalbaar te houden is hoogbouw niet
+        langer een taboe, waarbij de maximale hoogte afhankelijk is van de betreffende
+        locatie.
+      zoektermen:
+      - actualiseren
+      - onderzoek
+      - woonbehoefte
+      - woningaanbod
+      - mate
+      - doorstroming
+    - id: wonen_en_leefomgeving-003
+      status: niet_gestart
+      tekst: In 2023 stellen we een nieuwe woonvisie op waarbij de gemeente de regierol
+        neemt voor woningen die niet vanzelfsprekend door de markt worden gecreëerd.
+        Denk daarbij aan woningen voor lage inkomens en middeninkomens, starters,
+        senioren of wonen met zorg. Dit doen we in nauwe samenspraak met onze inwoners,
+        woningzoekenden, woningcorporaties en andere maatschappelijke partners.
+      zoektermen:
+      - stellen
+      - nieuwe
+      - woonvisie
+      - regierol
+      - neemt
+      - woningen
+    - id: wonen_en_leefomgeving-004
+      status: niet_gestart
+      tekst: In de nieuwe woonvisie nemen we instrumenten op die ervoor zorgen dat
+        de beschikbare woningen ook beschikbaar blijven voor de beoogde doelgroep
+        en de doorstroming stimuleren. Denk daarbij aan een anti- speculatiebeding,
+        terugkoopregeling, zelfbewoningsplicht, maar ook een verbod op uit- of opbouw
+        bij specifieke nieuwbouwprojecten, zodat starterswoningen ook echt starterswoningen
+        blijven. Daarbij moet duidelijk zijn welke instrumenten passend en effectief
+        zijn in de Baarnse situatie. Voor opkoopbescherming gelden specifieke voorwaarden.
+        We blijven monitoren of dit voor Baarn van toepassing is en of beleid van
+        omliggende gemeenten zorgt voor een waterbedeffect in Baarn. De nieuwe huisvestingswet
+        geeft naar verwachting extra mogelijkheden om te sturen. Die mogelijkheden
+        benutten we. Bestaande gebouwen en alternatieve woonvormen
+      zoektermen:
+      - nieuwe
+      - woonvisie
+      - nemen
+      - instrumenten
+      - ervoor
+      - zorgen
+    - id: wonen_en_leefomgeving-005
+      status: niet_gestart
+      tekst: Om meer Baarnse woningzoekenden te kunnen huisvesten zetten we niet alleen
+        in op het bouwen van extra huizen, maar ook om het omvormen van bestaande
+        gebouwen, zoals leegstaande bedrijfspanden buiten bedrijventerreinen, kantoren
+        en winkels.
+      zoektermen:
+      - baarnse
+      - woningzoekenden
+      - huisvesten
+      - zetten
+      - alleen
+      - bouwen
+    - id: wonen_en_leefomgeving-006
+      status: niet_gestart
+      tekst: We zoeken ook naar inbreidingslocaties voor nieuwe woningen. Daarbij
+        werken we actief aan het uitplaatsen van bedrijven naar de bedrijventerreinen.
+        Hiertoe houden we de huidige bedrijventerreinen aan de rand van het dorp volledig
+        in stand. Belemmerende factoren voor de vestiging van bedrijven uit de woonkern
+        proberen we samen met ondernemers proactief op te lossen.
+      zoektermen:
+      - zoeken
+      - inbreidingslocaties
+      - nieuwe
+      - woningen
+      - werken
+      - actief
+    - id: wonen_en_leefomgeving-007
+      status: niet_gestart
+      tekst: We kijken per wijk of buurt wat de mogelijkheden zijn om een gedifferentieerd
+        woningaanbod te creëren, waarbij meerdere typen inwoners (inkomensgroepen,
+        generaties enz.) naast elkaar wonen. Doorstroming is belangrijk; bij voorkeur
+        binnen de eigen buurt, zodat de sociale netwerken behouden blijven. Ook hebben
+        we oog voor alternatieve woonvormen zoals woongroepen, tiny en skinny houses
+        en kwalitatief goede tijdelijke woningen.
+      zoektermen:
+      - kijken
+      - wijk
+      - buurt
+      - mogelijkheden
+      - gedifferentieerd
+      - woningaanbod
+    - id: wonen_en_leefomgeving-008
+      status: niet_gestart
+      tekst: Voor Meander Baarn blijven we zo dicht mogelijk bij de intentie van het
+        legaat door in te zetten op wonen met zorg in de bestaande en voormalige bebouwing
+        op het terrein. Het bestaande groen behouden we eveneens. Als door de herbestemming
+        van Meander Baarn locaties vrijkomen, benutten we die voor woningbouw.
+      zoektermen:
+      - meander
+      - dicht
+      - mogelijk
+      - intentie
+      - legaat
+      - zetten
+    - id: wonen_en_leefomgeving-009
+      status: niet_gestart
+      tekst: 'De woonvisie besteedt nadrukkelijk aandacht aan de kwaliteit van de
+        leefomgeving. Hierbij komen ten minste aan de orde: ruimte voor ontmoeting,
+        groen, schone lucht en veilig wonen. 7 Mobiliteit'
+      zoektermen:
+      - woonvisie
+      - besteedt
+      - nadrukkelijk
+      - aandacht
+      - kwaliteit
+      - leefomgeving
+    - id: wonen_en_leefomgeving-010
+      status: niet_gestart
+      tekst: We werken aan schoon en veilig vervoer. Bij het ontwerpen van de openbare
+        ruimte zetten we in op een benadering waarin het gebruik van de fiets vanzelfsprekend
+        aantrekkelijker is dan de auto. Hierbij hebben we specifiek aandacht voor
+        jeugd die van en naar school en sport gaat. Naast een passende inrichting
+        vraagt dit ook om een gedragsverandering. Binnen onze mogelijkheden sturen
+        we hierop, maar uiteindelijk zijn de inwoners verantwoordelijk voor hun eigen
+        gedrag.
+      zoektermen:
+      - werken
+      - schoon
+      - veilig
+      - vervoer
+      - ontwerpen
+      - openbare
+    - id: wonen_en_leefomgeving-011
+      status: niet_gestart
+      tekst: Bij de herinrichting van straten binnen de bebouwde kom geldt als uitgangspunt
+        dat een maximumsnelheid van 30 km/u de norm wordt en 50 km/u de uitzondering.
+        We pakken gevaarlijke verkeerspunten voor fietsers en voetgangers versneld
+        aan. Hierbij houden we rekening met het nog op te stellen verkeerscirculatieplan
+        voor het centrum. Samen met de ondernemers maken we een plan om het zware
+        vrachtverkeer in de woon- en winkelstraten te minimaliseren. We streven naar
+        CO2-neutrale bevoorrading van winkels, horeca en ondernemers in het centrum
+        in 2026.
+      zoektermen:
+      - herinrichting
+      - straten
+      - bebouwde
+      - geldt
+      - uitgangspunt
+      - maximumsnelheid
+    - id: wonen_en_leefomgeving-012
+      status: niet_gestart
+      tekst: We zetten in op elektrisch deelvervoer en voeren daarbij als gemeente
+        de regie, zodat we wildgroei en overlast van deelscooters / -bakfietsen /
+        -auto’s voorkomen. We ontwikkelen beleid voor de precariorechten voor het
+        gebruik van de openbare ruimte door de leveranciers van dergelijke vervoermiddelen.
+      zoektermen:
+      - zetten
+      - elektrisch
+      - deelvervoer
+      - voeren
+      - regie
+      - zodat
+    - id: wonen_en_leefomgeving-013
+      status: niet_gestart
+      tekst: We dringen bij de provincie aan op verbetering van het openbaar vervoer.
+        Daarbij vragen we nadrukkelijk om aandacht voor de busverbinding met Lage
+        Vuursche en van en naar belangrijke zorgvoorzieningen in de omgeving. Dit
+        vullen we aan met een (elektrisch) hop-on-hop-offconcept dat de toeristische
+        locaties verbindt met het centrum en het station. Na ongeveer een jaar evalueren
+        we de onlangs gestarte proef met het treintje en beslissen we of dit moet
+        worden voortgezet c.q. uitgebreid.
+      zoektermen:
+      - dringen
+      - provincie
+      - verbetering
+      - openbaar
+      - vervoer
+      - vragen
+    - id: wonen_en_leefomgeving-014
+      status: niet_gestart
+      tekst: We maken een toekomstgericht laadpalenplan (inclusief laadinfrastructuur)
+        voor elektrisch vervoer en kijken naar de mogelijkheden om dit te combineren
+        met openbare verlichting.
+      zoektermen:
+      - maken
+      - toekomstgericht
+      - laadpalenplan
+      - inclusief
+      - laadinfrastructuur
+      - elektrisch
+    - id: wonen_en_leefomgeving-015
+      status: niet_gestart
+      tekst: . Parkeernormen
+      zoektermen:
+      - parkeernormen
+    - id: wonen_en_leefomgeving-016
+      status: niet_gestart
+      tekst: Het hanteren van een lagere parkeernorm kan bijdragen aan de realisatie
+        van meer woningen. Daarom formuleren we nieuw parkeerbeleid, inclusief een
+        nieuwe Nota parkeernormen. De ambitie is om de parkeernorm beter aan te laten
+        sluiten bij de mogelijkheden van de locatie, zodat bijvoorbeeld in het centrum
+        of rondom het station een lagere parkeernorm kan worden gehanteerd. Ook het
+        gebruik van deelauto’s of andere oplossingen kunnen argumenten zijn voor een
+        lagere parkeernorm.
+      zoektermen:
+      - hanteren
+      - lagere
+      - parkeernorm
+      - bijdragen
+      - realisatie
+      - woningen
+    - id: wonen_en_leefomgeving-017
+      status: niet_gestart
+      tekst: We stimuleren parkeeroplossingen op of onder eigen terrein waarbij het
+        ‘blik’ uit het zicht is. Verduurzaming woningen
+      zoektermen:
+      - stimuleren
+      - parkeeroplossingen
+      - eigen
+      - terrein
+      - blik
+      - zicht
+    - id: wonen_en_leefomgeving-018
+      status: niet_gestart
+      tekst: Betaalbaar wonen gaat niet alleen over de kosten van de woning zelf,
+        maar ook over energielasten. Daarom is verduurzaming van zowel huur- als koopwoningen
+        een speerpunt van het college. Voor nieuwbouw geldt dat we ten minste energieneutraal
+        en waar mogelijk energiepositief willen bouwen en aandacht hebben voor natuurinclusief
+        en circulair bouwen. Deze vraagstukken worden in samenspraak met de maatschappelijk
+        partners en de lokale woningcorporatie vastgesteld. Verduurzaming van woningen
+        houden we voor iedereen bereikbaar. 8 Groene karakter
+      zoektermen:
+      - betaalbaar
+      - wonen
+      - gaat
+      - alleen
+      - kosten
+      - woning
+    - id: wonen_en_leefomgeving-019
+      status: niet_gestart
+      tekst: We versterken het groene, lommerrijke karakter van Baarn door groenvoorzieningen
+        aan te pakken, bomen aan te planten en tuinen te vergroenen (Operatie Steenbreek).
+        We versterken de biodiversiteit. Te denken valt aan inheemse soorten, voedselbossen,
+        groene schoolpleinen, natuurlijke speelplekken en ander groenonderhoud. We
+        verzorgen beeldbepalende bomen beter, waardoor ze ondanks de droogte van de
+        afgelopen jaren gezond blijven en anticiperen door tijdig bomen te vervangen
+        of jonge aanplant tussen bestaande oude bomen te plaatsen. De vrijstelling
+        voor het aanvragen van een kapvergunning wijzigen we van percelen tot 350m2
+        naar percelen tot 200m2.
+      zoektermen:
+      - versterken
+      - groene
+      - lommerrijke
+      - karakter
+      - groenvoorzieningen
+      - pakken
+    - id: wonen_en_leefomgeving-020
+      status: niet_gestart
+      tekst: We houden het Bomenfonds in stand en blijven ons inzetten om meer bomen
+        te planten in de gemeente. Samen met inwoners gaan we aan de slag met vergroening
+        van hun wijk. Vanuit het Bomenfonds kunnen bijvoorbeeld bomen aan inwoners
+        worden ‘geschonken’. Dan kan het Bomenfonds ook ingezet worden in smalle straten
+        waar in de openbare ruimte geen plek is voor een boom.
+      zoektermen:
+      - houden
+      - bomenfonds
+      - stand
+      - inzetten
+      - bomen
+      - planten
+    - id: wonen_en_leefomgeving-021
+      status: niet_gestart
+      tekst: Bij het gebruik van materialen in de openbare ruimte kijken we nadrukkelijk
+        naar duurzaamheid. Daarbij rekenen we met alle kosten die samenhangen met
+        de aanschaf en de levensduur en gebruikscyclus om een goede kostenvergelijking
+        te maken. Lokale welstandscommissie
+      zoektermen:
+      - gebruik
+      - materialen
+      - openbare
+      - ruimte
+      - kijken
+      - nadrukkelijk
+    - id: wonen_en_leefomgeving-022
+      status: niet_gestart
+      tekst: Op dit moment loopt er een onderzoek naar de mogelijkheden voor een lokale
+        welstandscommissie. Op basis van de uitkomst hiervan maken we een keuze voor
+        een lokale adviescommissie die naast of in plaats van Mooi Sticht (on)gevraagd
+        advies uitbrengt aan het college en de gemeenteraad over ingediende bouwplannen.
+        Deze commissie is qua opzet vergelijkbaar met de verkeersadviescommissie.
+        Vorstelijk centrum
+      zoektermen:
+      - moment
+      - loopt
+      - onderzoek
+      - mogelijkheden
+      - lokale
+      - welstandscommissie
+    - id: wonen_en_leefomgeving-023
+      status: niet_gestart
+      tekst: Het centrum verdient een vorstelijke uitstraling. Om dat te bereiken
+        willen we meer groen, betere en grotere afvalbakken, comfortabeler bankjes,
+        meer fietsenstallingen en minder obstakels in de looproutes.
+      zoektermen:
+      - centrum
+      - verdient
+      - vorstelijke
+      - uitstraling
+      - bereiken
+      - willen
+    - id: wonen_en_leefomgeving-024
+      status: niet_gestart
+      tekst: We versterken de positie van de Brink als centrale ontmoetingsplek in
+        het dorp. We bepalen in nauwe samenspraak met onze inwoners de inrichting.
+        Daarbij nodigen we nadrukkelijk inwoners uit verschillende delen van Baarn
+        uit, zodat alle inwoners kunnen meedenken. Uiteraard worden de (horeca)ondernemers
+        ook in dit proces betrokken. De Brink is immers van ons allemaal. 9
+      zoektermen:
+      - versterken
+      - positie
+      - brink
+      - centrale
+      - ontmoetingsplek
+      - dorp
+    naam: Wonen en leefomgeving
+zoektermen:
+- coalitieakkoord
+- coalitie akkoord
+- collegeakkoord
+- collegeprogramma
+- Samen Baarn
+- akkoord 2022
+- coalitieakkoord 2022-2026

@@ -2,7 +2,7 @@
 
 Deze directory bevat de agent definities voor de Baarn Raadsinformatie MCP Server.
 
-## Agents Overzicht (24 agents)
+## Agents Overzicht (25 agents)
 
 ### Meta & Coördinatie
 | Agent | Categorie | Beschrijving |
@@ -55,6 +55,7 @@ Deze directory bevat de agent definities voor de Baarn Raadsinformatie MCP Serve
 | Agent | Categorie | Beschrijving |
 |-------|-----------|--------------|
 | `personeel-informant` | informatie | Informeert over bestuurders, raadsleden en organisatie |
+| `werkbezoek-verslag` | informatie | Beheert en verrijkt werkbezoek-verslagen |
 
 ## Agent Structuur
 
@@ -113,6 +114,15 @@ Agents kunnen de volgende tools gebruiken:
 - `get_annotations` - Notities ophalen
 - `get_coalitie_akkoord` - Coalitieakkoord informatie en voortgang
 - `update_coalitie_afspraak` - Status coalitie-afspraak updaten
+- `add_visit_report` - Werkbezoek-verslag toevoegen
+- `import_visit_reports` - Werkbezoek-verslagen importeren
+- `list_visit_reports` - Werkbezoek-verslagen lijst
+- `get_visit_report` - Werkbezoek-verslag details
+- `search_visit_reports` - Werkbezoek-verslagen doorzoeken
+- `update_visit_report` - Werkbezoek-verslag bijwerken
+- `delete_visit_report` - Werkbezoek-verslag archiveren
+- `link_visit_report_to_meeting` - Verslag koppelen aan vergadering
+- `index_visit_reports` - Verslagdocumenten indexeren
 
 ## Categorieën
 
